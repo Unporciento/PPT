@@ -9,8 +9,406 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="" crossorigin="anonymous">
 
-  <link rel="stylesheet" href="style.css">
-</head>
+  <style>
+    /* style.css - MinePredict Presentation
+       Variables, accesibilidad, responsive y optimizaciones
+    */
+
+    :root{
+      --bg-dark: #0a0e27;
+      --text-primary: #ffffff;
+      --muted: rgba(255,255,255,0.78);
+      --gradient-start: #667eea;
+      --gradient-end: #764ba2;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --accent-green-start: #22c55e;
+      --accent-green-end: #16a34a;
+      --accent-red-start: #f87171;
+      --accent-red-end: #ef4444;
+      --dragon-fire-1: #f87171;
+      --dragon-fire-2: #f093fb;
+      --dragon-fire-3: #f59e0b;
+      --max-width: 1400px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family:'Poppins',sans-serif;
+      background:var(--bg-dark);
+      color:var(--text-primary);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.4;
+      padding-top: 5px; /* Espacio para barra de progreso */
+    }
+
+    /* (Mejora) Barra de Progreso */
+    .progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+      width: 0%; /* Inicia en 0 */
+      z-index: 2000; /* Por encima de todo */
+      transition: width 0.4s ease-out; /* Animación suave */
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+    }
+
+    /* (Mejora) Animación flotante sutil */
+    @keyframes subtleFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-6px);
+      }
+    }
+    
+    /* (NUEVO) Animación de pulso para el logo */
+    @keyframes logoPulse {
+      0%, 100% {
+        box-shadow: 0 8px 18px rgba(102, 126, 234, 0.22);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        transform: scale(1.05);
+      }
+    }
+
+    /* Accesibilidad */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    .presentation{width:100%;height:100%;position:relative;display:block;overflow:hidden}
+    .slide{width:100%;height:100%;position:absolute;top:0;left:0;padding:48px;display:none;flex-direction:column;
+      padding-top: 55px; /* Asegura que el slide inicie bajo la barra */
+    } 
+    .slide.active{display:flex;animation:slideEnter .6s cubic-bezier(.16,1,.3,1)}
+
+    @keyframes slideEnter{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+    /* Fondo dinámico */
+    .bg-pattern{position:absolute;inset:0;z-index:0;overflow:hidden}
+    .bg-pattern::before{content:"";position:absolute;width:140%;height:140%;left:-20%;top:-20%;background:
+      radial-gradient(circle at 20% 50%, rgba(102,120,234,0.14) 0%, transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(72,202,228,0.09) 0%, transparent 40%);
+      animation:bgFloat 24s ease-in-out infinite}
+    @keyframes bgFloat{0%,100%{transform:none}50%{transform:translate(-16px,-16px) rotate(4deg)}}
+    .grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px);background-size:50px 50px;opacity:.35}
+
+    .slide-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.04);z-index:3}
+    .logo-container{display:flex;align-items:center;gap:14px}
+    
+    /* (NUEVO) Estilo de logo con pulso */
+    .logo-icon{
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:20px; /* Tamaño ícono microchip */
+      box-shadow:0 8px 18px rgba(102,126,234,0.22);
+      animation: logoPulse 3s ease-in-out infinite; /* Animación de pulso */
+    }
+    
+    .company-logo{font-weight:800;font-size:22px;background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .slide-number{font-weight:600;color:rgba(255,255,255,0.6);padding:8px 16px;border-radius:16px;background:rgba(255,255,255,0.02)}
+
+    /* Tipografías */
+    h1{font-size:72px;font-weight:900;line-height:0.95;margin-bottom:18px;background:linear-gradient(135deg,var(--gradient-start),#f093fb);-webkit-background-clip:text;color:transparent;text-shadow:0 0 60px rgba(102,126,234,.26)}
+    h2{font-size:40px;font-weight:700;margin-bottom:14px}
+    h3{font-size:20px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+    .subtitle{font-size:20px;color:var(--muted);margin-bottom:26px}
+
+    .content-wrapper{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;z-index:2}
+
+    /* --- (FIX) ESTILOS FALTANTES PARA SLIDE 1 --- */
+    .stats-showcase {
+      display: flex;
+      justify-content: space-between;
+      margin: 40px 0;
+      gap: 20px;
+    }
+    .stat-item {
+      flex: 1;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 25px;
+      text-align: center;
+      transition: all 0.3s ease;
+      /* (Mejora) Animación añadida */
+      animation: subtleFloat 4s ease-in-out infinite;
+    }
+    .stat-item:hover {
+      transform: translateY(-8px) scale(1.05); /* Efecto hover mejorado */
+      border-color: rgba(102, 126, 234, 0.5);
+      box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+    }
+    .stat-number {
+      font-size: 42px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    .stat-number .fas { font-size: 38px; }
+    .stat-label {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    /* (Mejora) Retraso de animación para cada item */
+    .stat-item:nth-child(1) { animation-delay: 0s; }
+    .stat-item:nth-child(2) { animation-delay: 0.5s; }
+    .stat-item:nth-child(3) { animation-delay: 1s; }
+    /* --- FIN DEL FIX DE SLIDE 1 --- */
+
+
+    /* Glass cards & layout (Slide 2) */
+    .glass-card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:16px;padding:22px;backdrop-filter:blur(10px);transition:transform .3s,box-shadow .3s}
+    .glass-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.45)}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+
+    ul{list-style:none;font-size:16px;line-height:1.7;color:var(--muted)}
+    li{position:relative;padding-left:30px;margin-bottom:12px}
+    li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));box-shadow:0 6px 14px rgba(102,126,234,0.18)}
+
+    /* Problem (Slide 3) */
+    .problem-card{display:flex;align-items:center;gap:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:12px;padding:18px;border:1px solid rgba(255,100,100,0.08);
+      /* (Mejora) Animación añadida */
+      animation: subtleFloat 4s ease-in-out infinite;
+    }
+    .problem-icon{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent-red-start),var(--accent-red-end));display:flex;align-items:center;justify-content:center;font-size:22px;color:white}
+    .problem-text{font-size:16px;color:var(--text-primary)}
+
+    /* (Mejora) Retraso de animación para Slide 3 */
+    .slide[data-index="3"] .problem-card:nth-of-type(1) { animation-delay: 0s; }
+    .slide[data-index="3"] .problem-card:nth-of-type(2) { animation-delay: 0.25s; }
+    .slide[data-index="3"] .problem-card:nth-of-type(3) { animation-delay: 0.5s; }
+    .slide[data-index="3"] .problem-card:nth-of-type(4) { animation-delay: 0.75s; }
+
+    /* Value (Slide 5) */
+    .value-card{background:var(--glass-bg);border-radius:14px;padding:18px;display:flex;flex-direction:column;align-items:flex-start;
+      /* (Mejora) Animación añadida */
+      animation: subtleFloat 4s ease-in-out infinite;
+    }
+    .value-icon{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--accent-green-start),var(--accent-green-end));display:flex;align-items:center;justify-content:center;color:white;margin-bottom:12px}
+    .value-title{font-weight:700;font-size:18px}
+    .value-text{font-size:15px;color:var(--muted)}
+
+    /* (Mejora) Retraso de animación para Slide 5 */
+    .slide[data-index="5"] .value-card:nth-of-type(1) { animation-delay: 0s; }
+    .slide[data-index="5"] .value-card:nth-of-type(2) { animation-delay: 0.25s; }
+    .slide[data-index="5"] .value-card:nth-of-type(3) { animation-delay: 0.5s; }
+    .slide[data-index="5"] .value-card:nth-of-type(4) { animation-delay: 0.75s; }
+
+
+    /* Metric (Slide 7) */
+    .metric-card{text-align:center;padding:22px;border-radius:18px; background:var(--glass-bg); border:1px solid var(--glass-border); transition: all 0.3s ease;}
+    .metric-card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.45)}
+    .metric-value{font-size:48px;font-weight:900;background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));-webkit-background-clip:text;color:transparent}
+    .metric-label{font-size:14px;color:var(--muted)}
+
+    /* Highlight & Insight boxes (Slides 5, 6, 7) */
+    .highlight-box{background:linear-gradient(135deg,rgba(102,126,234,0.08),rgba(118,75,162,0.06));border-left:4px solid var(--gradient-start);padding:18px;border-radius:12px}
+    .highlight-box h3{font-size:16px}
+    .highlight-box p{color:var(--muted)}
+
+    .insight-box{background:linear-gradient(135deg,rgba(34,197,94,0.07),rgba(22,163,74,0.06));border-left:4px solid var(--accent-green-start);padding:18px;border-radius:12px}
+
+    /* IoT visual (Slide 4) - Esta ya tenía animación */
+    .iot-visual{height:220px;border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:space-around;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);position:relative;overflow:hidden}
+    .iot-node{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));box-shadow:0 0 30px rgba(102,126,234,0.2);animation:nodeFloat 3s ease-in-out infinite}
+    @keyframes nodeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    /* Animación de pulso para el nodo IoT */
+    .iot-node::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid rgba(102, 126, 234, 0.4);
+      animation: nodePulse 2s ease-out infinite;
+    }
+    @keyframes nodePulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+    /* (Mejora) Retraso de animación para IoT */
+    .iot-node:nth-child(1) { animation-delay: 0s; }
+    .iot-node:nth-child(2) { animation-delay: 0.4s; }
+    .iot-node:nth-child(3) { animation-delay: 0.8s; }
+    .iot-node:nth-child(4) { animation-delay: 1.2s; }
+
+
+    /* Equipment grid (Slide 2) */
+    .equipment-showcase{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+    .equipment-item{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:center; transition: all 0.3s ease;}
+    .equipment-item:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,0.45)}
+    .equipment-icon-img{width:64px;height:64px;object-fit:contain;margin-bottom:12px}
+    .equipment-icon{font-size:42px;margin-bottom:12px;display:block;color:var(--gradient-start)}
+    .equipment-name{font-weight:600}
+
+    /* Controls */
+    .controls{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;display:flex;gap:12px;z-index:60}
+    .control-btn{background:linear-gradient(135deg,var(--gradient-start),var(--gradient-end));border:none;color:white;padding:12px 18px;border-radius:999px;font-weight:700;cursor:pointer;box-shadow:0 10px 30px rgba(102,126,234,0.2); transition: all 0.3s ease;}
+    .control-btn:hover {transform: translateY(-3px); box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);}
+    .control-btn:focus{outline:3px solid rgba(102,126,234,0.2)}
+
+    /* Footer / team */
+    .team-info{margin-top:auto;padding-top:18px;border-top:1px solid rgba(255,255,255,0.04)}
+    .team-names{color:var(--muted);font-weight:600}
+    .university{color:rgba(255,255,255,0.55);font-size:14px}
+    
+    
+    /* --- (NUEVO) ESTILOS PARA SLIDE DRAGÓN FINAL --- */
+    .slide-dragon .content-wrapper {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 40px; /* Espacio entre dragón y texto */
+      overflow: hidden; /* Ocultar el 'agujero' mientras crece */
+    }
+
+    /* (NUEVO) Estilo del Dragón de Fuego */
+    .dragon-icon {
+      font-size: 200px; /* Tamaño masivo */
+      background: linear-gradient(135deg, var(--dragon-fire-1), var(--dragon-fire-2), var(--dragon-fire-3));
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 30px rgba(248, 113, 113, 0.5), 0 0 60px rgba(240, 147, 251, 0.4), 0 0 100px rgba(248, 113, 113, 0.3);
+      animation: dragonPulse 3s ease-in-out infinite;
+      z-index: 101; /* Encima del 'agujero' al inicio */
+    }
+
+    .dragon-fin {
+      font-size: 100px; /* "FIN" bien grande */
+      line-height: 1;
+      margin-bottom: 0; /* Ajuste para H1 */
+      background: linear-gradient(135deg, var(--gradient-start), #f093fb);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 60px rgba(102,126,234,.4);
+      z-index: 101; /* Encima del 'agujero' al inicio */
+    }
+
+    /* (NUEVO) Animación del Brillo del Dragón */
+    @keyframes dragonPulse {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 0.8;
+        text-shadow: 0 0 30px rgba(248, 113, 113, 0.5), 0 0 60px rgba(240, 147, 251, 0.4), 0 0 100px rgba(248, 113, 113, 0.3);
+      }
+      50% {
+        transform: scale(1.05);
+        opacity: 1;
+        text-shadow: 0 0 40px rgba(248, 113, 113, 0.8), 0 0 80px rgba(240, 147, 251, 0.6), 0 0 140px rgba(248, 113, 113, 0.4);
+      }
+    }
+
+    /* El 'agujero negro' que se traga todo */
+    .dragon-swallow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1px; /* Empezar como un punto */
+      height: 1px;
+      background: var(--bg-dark); /* El color del fondo */
+      border-radius: 50%; /* Forma de círculo */
+      transform: translate(-50%, -50%) scale(0); /* Empezar invisible y centrado */
+      z-index: 100; /* Encima del texto e ícono */
+      opacity: 0;
+    }
+
+    /* Cuando el slide 10 está activo... */
+    .slide-dragon.active .dragon-swallow {
+      /* ...esperar 1.5s y luego correr la animación de 'tragar' */
+      animation: swallowScreen 1.2s cubic-bezier(0.7, 0, 0.3, 1) 1.5s forwards;
+    }
+
+    /* ...también, desvanecer el ícono y el texto "FIN" */
+    .slide-dragon.active .dragon-icon,
+    .slide-dragon.active .dragon-fin {
+      /* Empezar a desvanecerse justo cuando empieza la animación de tragar */
+      animation: fadeOutDragon 0.3s ease-out 1.5s forwards;
+    }
+
+    /* Animación del 'agujero' expandiéndose */
+    @keyframes swallowScreen {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+      100% {
+        /* Escala 3000 es suficiente para cubrir cualquier pantalla */
+        transform: translate(-50%, -50%) scale(3000); 
+        opacity: 1;
+      }
+    }
+
+    /* Animación para desvanecer el texto y el dragón */
+    @keyframes fadeOutDragon {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.5); } /* Se encogen un poco al ser "tragados" */
+    }
+    /* --- FIN DE ESTILOS DRAGÓN --- */
+
+
+    /* Responsive */
+    @media (max-width:1100px){
+      .h1{font-size:48px}
+      .grid-2{grid-template-columns:1fr}
+      .equipment-showcase{grid-template-columns:repeat(2,1fr)}
+      .stats-showcase {flex-wrap: wrap;} /* Ajuste para barra de stats */
+      .stat-item {flex-basis: 40%;} /* Ajuste para barra de stats */
+    }
+
+    @media (max-width:700px){
+      h1{font-size:44px}
+      h2{font-size:28px}
+      .slide{padding:20px; padding-top: 25px;} /* Ajuste para barra en móvil */
+      .company-logo{font-size:18px}
+      .logo-icon{width:38px;height:38px}
+      .equipment-showcase{grid-template-columns:repeat(2,1fr)}
+      .grid-4{grid-template-columns:repeat(2,1fr)}
+      .stats-showcase {flex-direction: column;} /* Stats en columna en móvil */
+      .stat-item {flex-basis: 100%;}
+      .controls{bottom:18px}
+      
+      /* Ajuste dragón en móvil */
+      .dragon-icon { font-size: 140px; }
+      .dragon-fin { font-size: 70px; }
+    }
+
+    /* Prefer reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .bg-pattern::before, .iot-node, .slide.active, .progress-bar, .stat-item, .problem-card, .value-card, .dragon-icon, .dragon-swallow {
+        animation:none!important;
+        transition:none!importan;
+      }
+    }
+
+    /* Print (para exportar PDF por print) */
+    @media print{
+      body{background:white;color:black; padding-top: 0;}
+      .slide{position:relative;height:auto;display:block; padding-top: 48px;}
+      .controls, .progress-bar {display:none}
+      .bg-pattern,.grid-bg{display:none}
+      /* Ocultar el dragón al imprimir */
+      .slide-dragon { display: none; } 
+    }
+  </style>
+  </head>
 <body>
 
   <div class="progress-bar" id="progressBar"></div>
@@ -21,7 +419,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header" aria-hidden="true">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number" aria-hidden="true">01 / 10</div>
@@ -57,7 +455,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">02 / 10</div>
@@ -112,7 +510,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">03 / 10</div>
@@ -147,7 +545,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">04 / 10</div>
@@ -191,7 +589,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">05 / 10</div>
@@ -236,7 +634,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">06 / 10</div>
@@ -265,7 +663,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">07 / 10</div>
@@ -304,7 +702,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">08 / 10</div>
@@ -360,7 +758,7 @@
       <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
       <header class="slide-header">
         <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-mountain-sun"></i></div>
+          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
           <div class="company-logo">MinePredict</div>
         </div>
         <div class="slide-number">09 / 10</div>
@@ -404,6 +802,107 @@
     <button id="printBtn" aria-label="Exportar PDF" class="control-btn">📄</button>
   </div>
 
-  <script src="script.js"></script>
-</body>
+  <script>
+    /* script.js - Navegación, teclado, swipe táctil, presenter mode básico y exportar a PDF */
+
+    (() => {
+      const slides = Array.from(document.querySelectorAll('.slide'));
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const printBtn = document.getElementById('printBtn');
+      const togglePresenter = document.getElementById('togglePresenter');
+      const presentation = document.getElementById('presentation');
+      
+      // --- (Mejora Gemini) ---
+      const progressBar = document.getElementById('progressBar');
+
+      let current = 0;
+      let presenterMode = false;
+
+      function showSlide(n){
+        slides[current].classList.remove('active');
+        current = (n + slides.length) % slides.length;
+        slides[current].classList.add('active');
+        updateAria();
+        
+        // --- (Mejora Gemini) Actualizar barra de progreso ---
+        const percentage = ((current + 1) / slides.length) * 100;
+        progressBar.style.width = percentage + '%';
+      }
+
+      function updateAria(){
+        slides.forEach((s,i)=>{
+          s.setAttribute('aria-hidden', i===current ? 'false' : 'true');
+        });
+        // Actualizar número en header si existe
+        const numberEls = document.querySelectorAll('.slide-number');
+        numberEls.forEach(el => {
+          const parent = el.closest('.slide');
+          if (!parent) return;
+          const idx = Array.from(slides).indexOf(parent);
+          // (Mejora) Asegura que el conteo total sea correcto (10)
+          el.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+        });
+      }
+
+      function next(){ showSlide(current+1); }
+      function prev(){ showSlide(current-1); }
+
+      // Eventos botones
+      prevBtn.addEventListener('click', prev);
+      nextBtn.addEventListener('click', next);
+
+      // Teclado
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); showSlide(0); }
+        if (e.key === 'End') { e.preventDefault(); showSlide(slides.length - 1); }
+      });
+
+      // Swipe táctil (básico)
+      let touchStartX = null;
+      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+      document.addEventListener('touchend', (e) => {
+        if (touchStartX === null) return;
+        const dx = e.changedTouches[0].screenX - touchStartX;
+        if (dx > 50) prev();
+        if (dx < -50) next();
+        touchStartX = null;
+      });
+
+      // Evitar scroll accidental en touchpads y ruedas (pero respetando scroll en inputs)
+      document.addEventListener('wheel', (e) => {
+        const tag = e.target.tagName.toLowerCase();
+        if (['input','textarea','select'].includes(tag)) return; // permitir scroll en formularios
+        e.preventDefault();
+      }, {passive:false});
+
+      // Presenter mode (simple): muestra index en la consola y alterna estilo "presenter"
+      togglePresenter.addEventListener('click', () => {
+        presenterMode = !presenterMode;
+        togglePresenter.setAttribute('aria-pressed', String(presenterMode));
+        document.body.classList.toggle('presenter-mode', presenterMode);
+        if (presenterMode) console.info('Presenter mode ON — slide:', current+1);
+      });
+
+      // Exportar a PDF / imprimir
+      printBtn.addEventListener('click', () => {
+        // Antes de imprimir, quitar animaciones para mejor resultado
+        document.documentElement.classList.add('print-ready');
+        setTimeout(() => window.print(), 200);
+      });
+
+      // Inicializar ARIA y estado
+      updateAria();
+      
+      // --- (Mejora Gemini) Inicializar barra de progreso ---
+      progressBar.style.width = (1 / slides.length) * 100 + '%';
+
+      // Exponer funciones para debugging / integraciones
+      window.minePredict = { next, prev, showSlide };
+
+    })();
+  </script>
+  </body>
 </html>
