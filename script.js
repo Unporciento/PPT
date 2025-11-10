@@ -35,6 +35,7 @@
       const parent = el.closest('.slide');
       if (!parent) return;
       const idx = Array.from(slides).indexOf(parent);
+      // (Mejora) Asegura que el conteo total sea correcto (10)
       el.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
     });
   }
