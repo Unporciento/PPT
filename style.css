@@ -229,20 +229,22 @@ li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;bord
 .team-names{color:var(--muted);font-weight:600}
 .university{color:rgba(255,255,255,0.55);font-size:14px}
 
+
 /* --- (NUEVO) ESTILOS PARA SLIDE DRAGÓN FINAL --- */
 .slide-dragon .content-wrapper {
   justify-content: center;
   align-items: center;
   text-align: center;
   gap: 40px; /* Espacio entre dragón y texto */
+  overflow: hidden; /* Ocultar el 'agujero' mientras crece */
 }
 
 .dragon-icon {
   font-size: 200px; /* Tamaño masivo */
   color: var(--gradient-start); /* Color del tema */
   text-shadow: 0 0 50px var(--gradient-start), 0 0 100px var(--gradient-end);
-  /* Animación de "respiración" o pulso */
   animation: dragonPulse 3s ease-in-out infinite;
+  z-index: 101; /* Encima del 'agujero' al inicio */
 }
 
 .dragon-fin {
@@ -253,6 +255,7 @@ li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;bord
   -webkit-background-clip: text;
   color: transparent;
   text-shadow: 0 0 60px rgba(102,126,234,.4);
+  z-index: 101; /* Encima del 'agujero' al inicio */
 }
 
 @keyframes dragonPulse {
@@ -265,6 +268,52 @@ li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;bord
     opacity: 1;
     text-shadow: 0 0 60px var(--gradient-start), 0 0 120px var(--gradient-end);
   }
+}
+
+/* El 'agujero negro' que se traga todo */
+.dragon-swallow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px; /* Empezar como un punto */
+  height: 1px;
+  background: var(--bg-dark); /* El color del fondo */
+  border-radius: 50%; /* Forma de círculo */
+  transform: translate(-50%, -50%) scale(0); /* Empezar invisible y centrado */
+  z-index: 100; /* Encima del texto e ícono */
+  opacity: 0;
+}
+
+/* Cuando el slide 10 está activo... */
+.slide-dragon.active .dragon-swallow {
+  /* ...esperar 1.5s y luego correr la animación de 'tragar' */
+  animation: swallowScreen 1.2s cubic-bezier(0.7, 0, 0.3, 1) 1.5s forwards;
+}
+
+/* ...también, desvanecer el ícono y el texto "FIN" */
+.slide-dragon.active .dragon-icon,
+.slide-dragon.active .dragon-fin {
+  /* Empezar a desvanecerse justo cuando empieza la animación de tragar */
+  animation: fadeOutDragon 0.3s ease-out 1.5s forwards;
+}
+
+/* Animación del 'agujero' expandiéndose */
+@keyframes swallowScreen {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    /* Escala 3000 es suficiente para cubrir cualquier pantalla */
+    transform: translate(-50%, -50%) scale(3000); 
+    opacity: 1;
+  }
+}
+
+/* Animación para desvanecer el texto y el dragón */
+@keyframes fadeOutDragon {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.5); } /* Se encogen un poco al ser "tragados" */
 }
 /* --- FIN DE ESTILOS DRAGÓN --- */
 
@@ -297,7 +346,7 @@ li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;bord
 
 /* Prefer reduced motion */
 @media (prefers-reduced-motion: reduce){
-  .bg-pattern::before, .iot-node, .slide.active, .progress-bar, .stat-item, .problem-card, .value-card, .dragon-icon {
+  .bg-pattern::before, .iot-node, .slide.active, .progress-bar, .stat-item, .problem-card, .value-card, .dragon-icon, .dragon-swallow {
     animation:none!important;
     transition:none!important;
   }
