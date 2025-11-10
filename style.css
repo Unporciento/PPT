@@ -318,7 +318,7 @@ li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;bord
     var(--dragon-fire-1) 50%, /* Rojo */
     var(--bg-dark) 90%         /* Oscuridad */
   );
-  z-index: 100; /* Detrás del dragón, pero encima del fondo */
+  z-index: 102; /* Por encima de todo (excepto los textos post-crédito) */
   opacity: 0; /* Empieza invisible */
   transform: translateY(-100%); /* Empieza arriba de la pantalla */
 }
@@ -357,552 +357,105 @@ li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;bord
   from { opacity: 1; transform: scale(1); }
   to { opacity: 0; transform: scale(0.5); } /* Se encogen un poco al ser "tragados" */
 }
+
+/* (NUEVO) Mensajes post-fuego */
+.post-fire-messages {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 103; /* Encima de la pared de fuego */
+  overflow: hidden;
+}
+
+.post-fire-text {
+  position: absolute; /* Todos en el mismo lugar */
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-shadow: 0 0 20px rgba(255,255,255,0.5);
+  opacity: 0; /* Ocultos por defecto */
+  transform: scale(0.8);
+}
+
+/* Animación para que aparezcan y desaparezcan */
+@keyframes fadeInOut {
+  0%   { opacity: 0; transform: scale(0.8); }
+  20%  { opacity: 1; transform: scale(1); } /* Entra */
+  80%  { opacity: 1; transform: scale(1); } /* Se mantiene */
+  100% { opacity: 0; transform: scale(0.8); } /* Sale */
+}
+
+/* Aplicar la animación con retrasos escalonados */
+.slide-dragon.active .post-fire-text:nth-child(1) {
+  /* Inicia 3s después (cuando la pared de fuego termina) */
+  animation: fadeInOut 3s ease-in-out 3s forwards;
+}
+.slide-dragon.active .post-fire-text:nth-child(2) {
+  /* Inicia 6s después */
+  animation: fadeInOut 3s ease-in-out 6s forwards;
+}
+.slide-dragon.active .post-fire-text:nth-child(3) {
+  /* Inicia 9s después */
+  animation: fadeInOut 3s ease-in-out 9s forwards;
+}
+.slide-dragon.active .post-fire-text:nth-child(4) {
+  /* Inicia 12s después */
+  animation: fadeInOut 3s ease-in-out 12s forwards;
+}
+.slide-dragon.active .post-fire-text:nth-child(5) {
+  /* Inicia 15s después */
+  animation: fadeInOut 3s ease-in-out 15s forwards;
+}
 /* --- FIN DE ESTILOS DRAGÓN --- */
 
 
-    /* Responsive */
-    @media (max-width:1100px){
-      .h1{font-size:48px}
-      .grid-2{grid-template-columns:1fr}
-      .equipment-showcase{grid-template-columns:repeat(2,1fr)}
-      .stats-showcase {flex-wrap: wrap;} /* Ajuste para barra de stats */
-      .stat-item {flex-basis: 40%;} /* Ajuste para barra de stats */
-    }
+/* Responsive */
+@media (max-width:1100px){
+  .h1{font-size:48px}
+  .grid-2{grid-template-columns:1fr}
+  .equipment-showcase{grid-template-columns:repeat(2,1fr)}
+  .stats-showcase {flex-wrap: wrap;} /* Ajuste para barra de stats */
+  .stat-item {flex-basis: 40%;} /* Ajuste para barra de stats */
+}
 
-    @media (max-width:700px){
-      h1{font-size:44px}
-      h2{font-size:28px}
-      .slide{padding:20px; padding-top: 25px;} /* Ajuste para barra en móvil */
-      .company-logo{font-size:18px}
-      .logo-icon{width:38px;height:38px}
-      .equipment-showcase{grid-template-columns:repeat(2,1fr)}
-      .grid-4{grid-template-columns:repeat(2,1fr)}
-      .stats-showcase {flex-direction: column;} /* Stats en columna en móvil */
-      .stat-item {flex-basis: 100%;}
-      .controls{bottom:18px}
-      
-      /* Ajuste dragón en móvil */
-      .dragon-icon { 
-          width: 180px;
-          height: 180px;
-          font-size: 140px; /* Ajuste para el ícono de font */
-      }
-      .dragon-fin { font-size: 70px; }
-    }
+@media (max-width:700px){
+  h1{font-size:44px}
+  h2{font-size:28px}
+  .slide{padding:20px; padding-top: 25px;} /* Ajuste para barra en móvil */
+  .company-logo{font-size:18px}
+  .logo-icon{width:38px;height:38px}
+  .equipment-showcase{grid-template-columns:repeat(2,1fr)}
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .stats-showcase {flex-direction: column;} /* Stats en columna en móvil */
+  .stat-item {flex-basis: 100%;}
+  .controls{bottom:18px}
+  
+  /* Ajuste dragón en móvil */
+  .dragon-icon { 
+      width: 180px;
+      height: 180px;
+      font-size: 140px; /* Ajuste para el ícono de font */
+  }
+  .dragon-fin { font-size: 70px; }
+  .post-fire-text { font-size: 28px; } /* Texto post-fuego más chico en móvil */
+}
 
-    /* Prefer reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .bg-pattern::before, .iot-node, .slide.active, .progress-bar, .stat-item, .problem-card, .value-card, .dragon-icon, .dragon-swallow, .fire-wall {
-        animation:none!important;
-        transition:none!important;
-      }
-    }
+/* Prefer reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .bg-pattern::before, .iot-node, .slide.active, .progress-bar, .stat-item, .problem-card, .value-card, .dragon-icon, .dragon-swallow, .fire-wall {
+    animation:none!important;
+    transition:none!important;
+  }
+}
 
-    /* Print (para exportar PDF por print) */
-    @media print{
-      body{background:white;color:black; padding-top: 0;}
-      .slide{position:relative;height:auto;display:block; padding-top: 48px;}
-      .controls, .progress-bar {display:none}
-      .bg-pattern,.grid-bg{display:none}
-      /* Ocultar el dragón al imprimir */
-      .slide-dragon { display: none; } 
-    }
-  </style>
-  </head>
-<body>
-
-  <div class="progress-bar" id="progressBar"></div>
-
-  <main class="presentation" id="presentation" aria-roledescription="slide presentation">
-
-    <section class="slide active" role="group" aria-label="Portada: MinePredict" data-index="1">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header" aria-hidden="true">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number" aria-hidden="true">01 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h1>MinePredict</h1>
-        <p class="subtitle">Mantenimiento Predictivo e Interoperabilidad Digital<br>para la Minería Chilena</p>
-
-        <div class="stats-showcase" role="list" aria-label="Estadísticas clave">
-          <div class="stat-item" role="listitem">
-            <div class="stat-number">15%</div>
-            <div class="stat-label">Del PIB Nacional</div>
-          </div>
-          <div class="stat-item" role="listitem">
-            <div class="stat-number"><i class="fas fa-network-wired" aria-hidden="true"></i></div>
-            <div class="stat-label">Tecnología Predictiva</div>
-          </div>
-          <div class="stat-item" role="listitem">
-            <div class="stat-number">24/7</div>
-            <div class="stat-label">Monitoreo Continuo</div>
-          </div>
-        </div>
-      </div>
-
-      <footer class="team-info" aria-label="Equipo y curso">
-        <div class="team-names">Simón Olivares • Julio Sinisterra • Renato Borquez • Wiljer Mamani</div>
-        <div class="university">Ingeniería en Maquinaria Pesada y Vehículos Automotrices</div>
-      </footer>
-    </section>
-
-    <section class="slide" role="group" aria-label="Contexto de la minería" data-index="2">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">02 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Contexto de la Minería</h2>
-        <div class="grid-2">
-          <article class="glass-card" aria-labelledby="industry-title">
-            <h3 id="industry-title"><i class="fas fa-industry fa-icon" aria-hidden="true"></i> La Industria</h3>
-            <ul>
-              <li>Pilar fundamental de la economía nacional</li>
-              <li>Principal exportador mundial de cobre</li>
-              <li>Alto impacto en empleo y desarrollo regional</li>
-              <li>Necesidad de modernización tecnológica</li>
-            </ul>
-          </article>
-
-          <article class="glass-card" aria-labelledby="challenges-title">
-            <h3 id="challenges-title"><i class="fas fa-exclamation-triangle fa-icon" aria-hidden="true"></i> Desafíos Críticos</h3>
-            <ul>
-              <li>Costos elevados de mantenimiento correctivo</li>
-              <li>Fallas no programadas frecuentes</li>
-              <li>Riesgos en seguridad operacional</li>
-              <li>Baja disponibilidad de equipos críticos</li>
-            </ul>
-          </article>
-        </div>
-
-        <div class="equipment-showcase" aria-hidden="false">
-          <figure class="equipment-item">
-            <img src="excavadora.webp" alt="Excavadora minera" class="equipment-icon-img" loading="lazy">
-            <figcaption class="equipment-name">Excavadoras</figcaption>
-          </figure>
-          <figure class="equipment-item">
-            <img src="cargador.webp" alt="Cargador frontal" class="equipment-icon-img" loading="lazy">
-            <figcaption class="equipment-name">Cargadores</figcaption>
-          </figure>
-          <div class="equipment-item" role="img" aria-label="Perforadoras">
-            <span class="equipment-icon"><i class="fas fa-tools" aria-hidden="true"></i></span>
-            <div class="equipment-name">Perforadoras</div>
-          </div>
-          <div class="equipment-item" role="img" aria-label="Camiones mineros">
-            <span class="equipment-icon"><i class="fas fa-truck" aria-hidden="true"></i></span>
-            <div class="equipment-name">Camiones</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Problemática actual" data-index="3">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">03 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Problemática Actual</h2>
-
-        <div class="problem-card">
-          <div class="problem-icon"><i class="fas fa-stop-circle" aria-hidden="true"></i></div>
-          <div class="problem-text">Detenciones no programadas que paralizan la producción y generan pérdidas millonarias</div>
-        </div>
-
-        <div class="problem-card">
-          <div class="problem-icon"><i class="fas fa-dollar-sign" aria-hidden="true"></i></div>
-          <div class="problem-text">Costos elevados por mantenimiento correctivo de emergencia y reparaciones urgentes</div>
-        </div>
-
-        <div class="problem-card">
-          <div class="problem-icon"><i class="fas fa-clock" aria-hidden="true"></i></div>
-          <div class="problem-text">Pérdida significativa de productividad y eficiencia operacional en faenas críticas</div>
-        </div>
-
-        <div class="problem-card">
-          <div class="problem-icon"><i class="fas fa-unlink" aria-hidden="true"></i></div>
-          <div class="problem-text">Falta de integración entre equipos de diferentes marcas y sistemas de monitoreo</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Nuestra solución: sistema IoT" data-index="4">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">04 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Nuestra Solución: Sistema IoT</h2>
-
-        <div class="iot-visual" aria-hidden="true">
-          <div class="iot-node" aria-hidden="true"><i class="fas fa-satellite-dish"></i></div>
-          <div class="iot-node" aria-hidden="true"><i class="fas fa-server"></i></div>
-          <div class="iot-node" aria-hidden="true"><i class="fas fa-chart-line"></i></div>
-          <div class="iot-node" aria-hidden="true"><i class="fas fa-bell"></i></div>
-        </div>
-
-        <div class="grid-2">
-          <article class="glass-card">
-            <h3><i class="fas fa-cogs fa-icon" aria-hidden="true"></i> Componentes Técnicos</h3>
-            <ul>
-              <li>Sensores IoT en equipos críticos</li>
-              <li>Monitoreo en tiempo real 24/7</li>
-              <li>Análisis de vibración, temperatura y presión</li>
-              <li>Plataforma centralizada de datos</li>
-            </ul>
-          </article>
-
-          <article class="glass-card">
-            <h3><i class="fas fa-star fa-icon" aria-hidden="true"></i> Ventajas Competitivas</h3>
-            <ul>
-              <li>Alertas tempranas automáticas</li>
-              <li>Interoperabilidad entre marcas</li>
-              <li>Capacitación técnica &lt; 3 horas</li>
-              <li>Dashboard intuitivo y accesible</li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Propuesta de valor" data-index="5">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">05 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Propuesta de Valor</h2>
-        <div class="grid-4" style="grid-template-columns: repeat(2, 1fr);">
-          <div class="value-card">
-            <div class="value-icon"><i class="fas fa-crosshairs" aria-hidden="true"></i></div>
-            <div class="value-title">Anticipación</div>
-            <div class="value-text">Detectar fallas antes de que ocurran mediante análisis predictivo</div>
-          </div>
-
-          <div class="value-card">
-            <div class="value-icon"><i class="fas fa-chart-bar" aria-hidden="true"></i></div>
-            <div class="value-title">Optimización</div>
-            <div class="value-text">Reducción de hasta 30% en costos operativos y mantenimiento</div>
-          </div>
-
-          <div class="value-card">
-            <div class="value-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></div>
-            <div class="value-title">Seguridad</div>
-            <div class="value-text">Mayor protección para trabajadores y operaciones críticas</div>
-          </div>
-
-          <div class="value-card">
-            <div class="value-icon"><i class="fas fa-sync-alt" aria-hidden="true"></i></div>
-            <div class="value-title">Continuidad</div>
-            <div class="value-text">Disponibilidad garantizada de equipos y producción ininterrumpida</div>
-          </div>
-        </div>
-
-        <div class="highlight-box" style="margin-top: 25px;">
-          <h3><i class="fas fa-plug fa-icon" aria-hidden="true"></i> Interoperabilidad Total</h3>
-          <p>Compatible con equipos Caterpillar, Komatsu, Hitachi y más. Un solo sistema para toda tu flota.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Proceso de validación" data-index="6">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">06 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Proceso de Validación</h2>
-        <div class="glass-card" style="margin-bottom: 25px;">
-          <h3><i class="fas fa-vial fa-icon" aria-hidden="true"></i> Metodología de Experimentación</h3>
-          <p>Prueba piloto de <strong>48 horas</strong> en faena minera real, con técnicos y supervisores de mantenimiento operando el sistema en condiciones reales de trabajo.</p>
-        </div>
-        <div class="grid-2">
-          <div class="highlight-box">
-            <h3><i class="fas fa-users fa-icon" aria-hidden="true"></i> Hipótesis 1: Adopción</h3>
-            <p>¿Adoptarán los técnicos el sistema con capacitación menor a 3 horas y sin necesidad de soporte externo?</p>
-          </div>
-          <div class="highlight-box">
-            <h3><i class="fas fa-chart-pie fa-icon" aria-hidden="true"></i> Hipótesis 2: Impacto</h3>
-            <p>¿Reducirá significativamente costos operativos y detenciones no programadas?</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Resultados del piloto" data-index="7">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">07 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Resultados del Piloto</h2>
-        <div class="grid-2" style="margin-bottom: 25px;">
-          <div class="metric-card">
-            <div class="metric-value">72%</div>
-            <div class="metric-label">Adopción del personal técnico<br>(Meta inicial: 70%)</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">-25%</div>
-            <div class="metric-label">Reducción de detenciones<br>por fallas menores</div>
-          </div>
-        </div>
-
-        <div class="insight-box">
-          <h3><i class="fas fa-lightbulb fa-icon" aria-hidden="true"></i> Insight Principal</h3>
-          <p>Alta disposición de gerentes de mantenimiento para <strong>escalar la solución a toda la flota de equipos</strong>, validando tanto la viabilidad comercial como el impacto operacional inmediato del sistema.</p>
-        </div>
-
-        <div class="glass-card" style="margin-top: 20px;">
-          <h3><i class="fas fa-check-circle fa-icon" aria-hidden="true"></i> Validaciones Confirmadas</h3>
-          <ul>
-            <li>Interfaz intuitiva y fácil de usar por personal técnico</li>
-            <li>Alertas precisas y accionables en tiempo real</li>
-            <li>Reducción comprobada de tiempos de detención</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Modelo de negocio" data-index="8">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">08 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Modelo de Negocio</h2>
-        <div class="grid-2">
-          <div class="glass-card">
-            <h3><i class="fas fa-bullseye fa-icon" aria-hidden="true"></i> Segmento de Clientes</h3>
-            <ul>
-              <li>Empresas mineras medianas y grandes</li>
-              <li>Talleres de mantenimiento industrial</li>
-              <li>Instituciones de formación técnica</li>
-              <li>Proveedores de servicios mineros</li>
-            </ul>
-          </div>
-
-          <div class="glass-card">
-            <h3><i class="fas fa-coins fa-icon" aria-hidden="true"></i> Modelo de Ingresos</h3>
-            <ul>
-              <li>Contratos de servicio anual con SLA</li>
-              <li>Suscripciones mensuales de software</li>
-              <li>Análisis predictivo especializado</li>
-              <li>Capacitación y certificación técnica</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-top: 20px;">
-          <div class="glass-card">
-            <h3><i class="fas fa-handshake fa-icon" aria-hidden="true"></i> Socios Clave</h3>
-            <ul>
-              <li>Fabricantes de equipos (CAT, Komatsu)</li>
-              <li>Proveedores de sensores IoT</li>
-              <li>Empresas de ciberseguridad</li>
-            </ul>
-          </div>
-
-          <div class="glass-card">
-            <h3><i class="fas fa-rocket fa-icon" aria-hidden="true"></i> Escalabilidad</h3>
-            <ul>
-              <li>Expansión a otras industrias extractivas</li>
-              <li>Integración con sistemas ERP existentes</li>
-              <li>Desarrollo de módulos especializados</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide" role="group" aria-label="Conclusiones" data-index="9">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <header class="slide-header">
-        <div class="logo-container">
-          <div class="logo-icon" aria-hidden="true"><i class="fas fa-microchip"></i></div>
-          <div class="company-logo">MinePredict</div>
-        </div>
-        <div class="slide-number">09 / 10</div>
-      </header>
-
-      <div class="content-wrapper">
-        <h2>Conclusiones</h2>
-        <div class="glass-card big" style="padding: 40px; margin-bottom: 35px;">
-          <ul style="font-size: 20px; line-height: 2;">
-            <li>Modelo validado exitosamente: <strong>Viable, Factible y Deseable</strong></li>
-            <li>Alta aceptación técnica en operaciones reales de minería</li>
-            <li>Reducción comprobada de detenciones no programadas (-25%)</li>
-            <li>Escalabilidad confirmada por gerentes de mantenimiento</li>
-            <li>ROI positivo demostrado en período de prueba</li>
-          </ul>
-        </div>
-
-        <div class="final-cta" style="text-align:center; margin-top: 30px;">
-          <h1 style="font-size: 48px; margin-bottom: 18px;">MinePredict</h1>
-          <p style="font-size: 20px; color: rgba(255,255,255,0.85);">Transformando la minería chilena hacia el futuro digital</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="slide slide-dragon" role="group" aria-label="Fin" data-index="10">
-      <div class="bg-pattern" aria-hidden="true"><div class="grid-bg"></div></div>
-      <div class="content-wrapper">
-        <div class="fire-wall" aria-hidden="true"></div>
-        
-        <i class="fas fa-dragon dragon-icon" aria-hidden="true"></i>
-        <h1 class="dragon-fin">FIN</h1>
-      </div>
-    </section>
-
-  </main>
-
-  <div class="controls" role="navigation" aria-label="Controles de la presentación">
-    <button id="prevBtn" aria-label="Anterior" class="control-btn"><i class="fas fa-chevron-left" aria-hidden="true"></i><span class="sr-only">Anterior</span></button>
-    <button id="nextBtn" aria-label="Siguiente" class="control-btn"><span class="sr-only">Siguiente</span><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
-    <button id="togglePresenter" aria-pressed="false" class="control-btn" title="Alternar modo presentador">🎤</button>
-    <button id="printBtn" aria-label="Exportar PDF" class="control-btn">📄</button>
-  </div>
-
-  <script>
-    /* script.js - Navegación, teclado, swipe táctil, presenter mode básico y exportar a PDF */
-
-    (() => {
-      const slides = Array.from(document.querySelectorAll('.slide'));
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const printBtn = document.getElementById('printBtn');
-      const togglePresenter = document.getElementById('togglePresenter');
-      const presentation = document.getElementById('presentation');
-      
-      // --- (Mejora Gemini) ---
-      const progressBar = document.getElementById('progressBar');
-
-      let current = 0;
-      let presenterMode = false;
-
-      function showSlide(n){
-        slides[current].classList.remove('active');
-        current = (n + slides.length) % slides.length;
-        slides[current].classList.add('active');
-        updateAria();
-        
-        // --- (Mejora Gemini) Actualizar barra de progreso ---
-        const percentage = ((current + 1) / slides.length) * 100;
-        progressBar.style.width = percentage + '%';
-      }
-
-      function updateAria(){
-        slides.forEach((s,i)=>{
-          s.setAttribute('aria-hidden', i===current ? 'false' : 'true');
-        });
-        // Actualizar número en header si existe
-        const numberEls = document.querySelectorAll('.slide-number');
-        numberEls.forEach(el => {
-          const parent = el.closest('.slide');
-          if (!parent) return;
-          const idx = Array.from(slides).indexOf(parent);
-          // (Mejora) Asegura que el conteo total sea correcto (10)
-          el.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
-        });
-      }
-
-      function next(){ showSlide(current+1); }
-      function prev(){ showSlide(current-1); }
-
-      // Eventos botones
-      prevBtn.addEventListener('click', prev);
-      nextBtn.addEventListener('click', next);
-
-      // Teclado
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
-        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
-        if (e.key === 'Home') { e.preventDefault(); showSlide(0); }
-        if (e.key === 'End') { e.preventDefault(); showSlide(slides.length - 1); }
-      });
-
-      // Swipe táctil (básico)
-      let touchStartX = null;
-      document.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
-      document.addEventListener('touchend', (e) => {
-        if (touchStartX === null) return;
-        const dx = e.changedTouches[0].screenX - touchStartX;
-        if (dx > 50) prev();
-        if (dx < -50) next();
-        touchStartX = null;
-      });
-
-      // Evitar scroll accidental en touchpads y ruedas (pero respetando scroll en inputs)
-      document.addEventListener('wheel', (e) => {
-        const tag = e.target.tagName.toLowerCase();
-        if (['input','textarea','select'].includes(tag)) return; // permitir scroll en formularios
-        e.preventDefault();
-      }, {passive:false});
-
-      // Presenter mode (simple): muestra index en la consola y alterna estilo "presenter"
-      togglePresenter.addEventListener('click', () => {
-        presenterMode = !presenterMode;
-        togglePresenter.setAttribute('aria-pressed', String(presenterMode));
-        document.body.classList.toggle('presenter-mode', presenterMode);
-        if (presenterMode) console.info('Presenter mode ON — slide:', current+1);
-      });
-
-      // Exportar a PDF / imprimir
-      printBtn.addEventListener('click', () => {
-        // Antes de imprimir, quitar animaciones para mejor resultado
-        document.documentElement.classList.add('print-ready');
-        setTimeout(() => window.print(), 200);
-      });
-
-      // Inicializar ARIA y estado
-      updateAria();
-      
-      // --- (Mejora Gemini) Inicializar barra de progreso ---
-      progressBar.style.width = (1 / slides.length) * 100 + '%';
-
-      // Exponer funciones para debugging / integraciones
-      window.minePredict = { next, prev, showSlide };
-
-    })();
-  </script>
-  </body>
-</html>
+/* Print (para exportar PDF por print) */
+@media print{
+  body{background:white;color:black; padding-top: 0;}
+  .slide{position:relative;height:auto;display:block; padding-top: 48px;}
+  .controls, .progress-bar {display:none}
+  .bg-pattern,.grid-bg{display:none}
+  /* Ocultar el dragón al imprimir */
+  .slide-dragon { display: none; } 
+}
