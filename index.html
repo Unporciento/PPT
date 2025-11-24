@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación GNC - INACAP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: #0f172a;
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* FONDO */
+        .background-anim {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #0f2027, #203a43, #2c5364);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* CABECERA */
+        header {
+            background-color: white;
+            height: 90px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 50;
+        }
+        .header-logo { height: 60px; width: auto; object-fit: contain; }
+
+        /* SLIDES */
+        .slider-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.95) translateY(30px);
+        }
+        .slide.active { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
+
+        /* GLASS CARD */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 95%; /* Más ancho para aprovechar espacio */
+            max-width: 1400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+        .glass-card::-webkit-scrollbar { width: 6px; }
+        .glass-card::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        /* TEXTOS */
+        h1 { font-size: 2.5rem; font-weight: 800; color: #fff; margin-bottom: 1rem; text-transform: uppercase; }
+        h2 { font-size: 1.3rem; color: #ef4444; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; border-bottom: 2px solid rgba(239, 68, 68, 0.3); display: inline-block; }
+        p, li { font-size: 1rem; line-height: 1.5; color: #e2e8f0; margin-bottom: 0.5rem; }
+        li { list-style: none; padding-left: 1.5rem; position: relative; }
+        li::before { content: '►'; position: absolute; left: 0; color: #ef4444; font-size: 0.8rem; top: 5px; }
+
+        /* IMÁGENES ARREGLADAS (SIN ZOOM EXCESIVO) */
+        .img-box {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            height: 280px; /* Altura fija */
+            background: rgba(0,0,0,0.3); /* Fondo oscuro por si la imagen no cubre todo */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .slide-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* ESTO ARREGLA EL ZOOM: Muestra la imagen completa */
+            transition: transform 0.5s;
+        }
+        /* Solo para fotos de fondo completo usamos cover */
+        .slide-img.cover-mode { object-fit: cover; }
+        
+        .img-box:hover .slide-img { transform: scale(1.02); }
+
+        /* TABLA */
+        .table-custom { width: 100%; border-collapse: collapse; margin-top: 1rem; background: rgba(0,0,0,0.2); border-radius: 10px; overflow: hidden; }
+        .table-custom td { padding: 10px 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .label-cell { font-weight: 700; color: #ef4444; width: 30%; text-transform: uppercase; font-size: 0.9rem; }
+
+        /* CONTROLES */
+        .nav-btn { position: absolute; bottom: 20px; padding: 10px 30px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 50px; cursor: pointer; transition: 0.3s; font-weight: 600; backdrop-filter: blur(5px); z-index: 100; }
+        .nav-btn:hover { background: #ef4444; transform: scale(1.05); }
+        #prevBtn { left: 40px; }
+        #nextBtn { right: 40px; }
+
+        /* FINAL GRACIOSO */
+        .bomb-container { font-size: 100px; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .fa-bomb { animation: shake 0.5s infinite; color: #fff; }
+        .fa-burst { font-size: 250px; color: #ef4444; display: none; animation: explode 0.8s forwards; }
+        .funny-text { font-size: 1.5rem; color: #fbbf24; font-weight: bold; opacity: 0; transition: opacity 1s; margin-top: 20px; }
+        
+        .slide.active .bomb-active .fa-bomb { display: none; }
+        .slide.active .bomb-active .fa-burst { display: block; }
+        .slide.active .bomb-active ~ .funny-text { opacity: 1; }
+
+        @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(5deg); } 75% { transform: rotate(-5deg); } }
+        @keyframes explode { 0% { transform: scale(0.1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+
+    </style>
+</head>
+<body>
+
+    <div class="background-anim"></div>
+
+    <header>
+        <img src="39d2dd8f-2f2b-4900-9fcc-686137b17228.png" alt="Área Mecánica" class="header-logo">
+        <img src="ede55ec7-5ce1-4c7f-9527-c9c03d9f26ee.png" alt="INACAP" class="header-logo">
+    </header>
+
+    <div class="slider-container">
+
+        <!-- 1. PORTADA -->
+        <div class="slide active" id="slide1">
+            <div class="glass-card tilt-effect">
+                <div style="transform: translateZ(40px);">
+                    <h3 class="text-gray-400 uppercase tracking-widest mb-2">Evaluación 4</h3>
+                    <h1>Mantenimiento de Sistemas de Lubricación</h1>
+                    <h2 style="font-size: 2rem; border-bottom: 4px solid #ef4444; padding-bottom: 10px;">GAS NATURAL COMPRIMIDO (GNC)</h2>
+                    <table class="table-custom">
+                        <tr><td class="label-cell">Integrantes</td><td>Millaray Aguirre, Renato Bórquez, Wiljer Mamani, Simón Olivares, Julio Sinisterra</td></tr>
+                        <tr><td class="label-cell">Carrera</td><td>ING. En Maquinaria Pesada y Vehículos Automotrices</td></tr>
+                        <tr><td class="label-cell">Docente</td><td>Sergio Chislenko</td></tr>
+                        <tr><td class="label-cell">Fecha</td><td>03/12/2025</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. INTRODUCCIÓN -->
+        <div class="slide" id="slide2">
+            <div class="glass-card tilt-effect">
+                <div style="transform: translateZ(30px);">
+                    <h1>Combustibles Alternativos</h1>
+                    <div class="grid grid-cols-2 gap-10 items-center">
+                        <div>
+                            <p class="text-lg">El GNC es el <b>"combustible puente"</b> ideal hacia la electromovilidad.</p>
+                            <ul class="mt-6 space-y-4">
+                                <li><b>Tecnología Madura:</b> Lista para usar hoy.</li>
+                                <li><b>Limpio:</b> Reduce MP y NOx drásticamente.</li>
+                                <li><b>Económico:</b> Ahorro sustancial vs Gasolina.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white/5 p-8 rounded-xl border border-white/10 text-center">
+                            <i class="fas fa-leaf text-6xl text-green-400 mb-4"></i>
+                            <h3 class="text-2xl font-bold mb-2">Objetivo</h3>
+                            <p>Reducir contaminación y costos operativos en flotas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. QUÉ ES EL GNC -->
+        <div class="slide" id="slide3">
+            <div class="glass-card tilt-effect">
+                <h1>¿Qué es el GNC?</h1>
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <p class="mb-4">Metano (CH₄) a alta presión (200-250 Bar). Más liviano que el aire.</p>
+                        <div class="bg-blue-900/30 p-4 rounded-lg mb-4 border-l-4 border-blue-500">
+                            <h4 class="font-bold text-blue-400">GNC vs GNL:</h4>
+                            <p class="text-sm">GNC es Gas Comprimido (Gaseoso). GNL es Gas Licuado (Líquido, -161°C).</p>
+                        </div>
+                        <ul>
+                            <li>Composición: >90% Metano.</li>
+                            <li>Octanaje: ~130.</li>
+                        </ul>
+                    </div>
+                    <div class="img-box bg-white">
+                        <!-- IMAGEN: GNC vs GNL (Con CONTAIN para que se lea todo) -->
+                        <img src="4.jpg" class="slide-img" alt="Comparativa GNC GNL">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. EXTRACCIÓN -->
+        <div class="slide" id="slide4">
+            <div class="glass-card tilt-effect">
+                <h1>Extracción y Generación</h1>
+                <div class="grid grid-cols-2 gap-8 items-center">
+                    <div class="img-box">
+                        <!-- IMAGEN: Planta (Cover para rellenar) -->
+                        <img src="7.avif" class="slide-img cover-mode" alt="Planta Gas">
+                    </div>
+                    <div>
+                        <h2>Cadena de Suministro</h2>
+                        <ul class="mt-4">
+                            <li><b>Importación:</b> GNL Quintero y Mejillones.</li>
+                            <li><b>Proceso:</b> Llega líquido en barcos, se regasifica y viaja por gasoductos.</li>
+                            <li><b>Estación:</b> Se comprime a 250 bar "in situ".</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. CAMPO APLICABLE (IMAGEN TAXI NUEVA) -->
+        <div class="slide" id="slide5">
+            <div class="glass-card tilt-effect">
+                <h1>Campo Aplicable en Chile</h1>
+                <div class="grid grid-cols-2 gap-8">
+                    <!-- TAXI NUEVO -->
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h2>Transporte Urbano</h2>
+                        <div class="img-box h-48 mb-4">
+                            <img src="taxi-gncjpg.webp" class="slide-img cover-mode" alt="Taxi GNC">
+                        </div>
+                        <ul>
+                            <li>Taxis y Colectivos.</li>
+                            <li>Flotas comerciales.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white/5 p-6 rounded-xl border border-white/10">
+                        <h2>Servicios e Industria</h2>
+                        <div class="img-box h-48 mb-4">
+                            <img src="2.jpg" class="slide-img cover-mode" alt="Camión GNC">
+                        </div>
+                        <ul>
+                            <li>Camiones de carga.</li>
+                            <li>Recolección basura.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. SISTEMAS -->
+        <div class="slide" id="slide6">
+            <div class="glass-card tilt-effect">
+                <h1>Sistemas y Componentes</h1>
+                <div class="grid grid-cols-2 gap-8 items-center">
+                    <div>
+                        <ul class="space-y-4 text-lg">
+                            <li><b>Cilindros:</b> Acero o Fibra de Carbono.</li>
+                            <li><b>Regulador:</b> Baja presión de 200 a 2 bar.</li>
+                            <li><b>ECU:</b> Gestión electrónica.</li>
+                            <li><b>Inyectores:</b> Inyección secuencial de gas.</li>
+                        </ul>
+                    </div>
+                    <div class="img-box bg-white">
+                        <!-- Diagrama (Contain para ver detalles) -->
+                        <img src="3.jpg" class="slide-img" alt="Diagrama Sistema GNC">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. DUAL FUEL -->
+        <div class="slide" id="slide7">
+            <div class="glass-card tilt-effect">
+                <h1>Maquinaria Pesada: Dual-Fuel</h1>
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="img-box bg-white">
+                        <img src="6.jpg" class="slide-img" alt="Motor Pesado">
+                    </div>
+                    <div>
+                        <h2>Motores Diésel</h2>
+                        <p>Tecnología <b>Dual-Fuel</b> (Mezcla).</p>
+                        <div class="mt-4 p-4 bg-green-900/30 rounded-xl border border-green-500">
+                            <p class="font-bold text-green-400">Sustitución 70/30</p>
+                            <p class="text-sm mt-2">Inyecta un piloto de diésel para encender la mezcla de gas. Mantiene potencia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. ECONOMÍA -->
+        <div class="slide" id="slide8">
+            <div class="glass-card tilt-effect">
+                <h1>Economía (2025)</h1>
+                <div class="grid grid-cols-3 gap-4 mt-8 text-center">
+                    <div class="p-6 bg-white/5 rounded-xl border border-red-500/30">
+                        <i class="fas fa-gas-pump text-3xl mb-3 text-red-400"></i>
+                        <h3 class="font-bold">Precios</h3>
+                        <p class="text-sm">GNC: ~$650/m³</p>
+                        <p class="text-sm text-gray-400">Gasolina: ~$1.350/L</p>
+                    </div>
+                    <div class="p-6 bg-white/5 rounded-xl border border-green-500/30">
+                        <i class="fas fa-piggy-bank text-3xl mb-3 text-green-400"></i>
+                        <h3 class="font-bold">Ahorro</h3>
+                        <p class="text-xl text-green-400 font-bold">40-50%</p>
+                        <p class="text-sm">Por km recorrido</p>
+                    </div>
+                    <div class="p-6 bg-white/5 rounded-xl border border-blue-500/30">
+                        <i class="fas fa-chart-line text-3xl mb-3 text-blue-400"></i>
+                        <h3 class="font-bold">ROI</h3>
+                        <p class="text-sm">Retorno en:</p>
+                        <p class="font-bold text-blue-400">8-12 meses</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. NORMATIVA -->
+        <div class="slide" id="slide9">
+            <div class="glass-card tilt-effect">
+                <h1>Normativa y Seguridad</h1>
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <h2>Marco Legal</h2>
+                        <ul>
+                            <li><b>Antigüedad:</b> Hasta 15 años para conversión.</li>
+                            <li><b>Certificación:</b> Taller autorizado 3CV/SEC.</li>
+                            <li><b>Revisión:</b> Anual de fugas, Quinquenal de cilindros.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h2>Seguridad</h2>
+                        <ul>
+                            <li>Cilindros a prueba de impactos.</li>
+                            <li>Válvulas de alivio térmico.</li>
+                            <li>Más seguro que gasolina (540°C ignición).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. INFRAESTRUCTURA -->
+        <div class="slide" id="slide10">
+            <div class="glass-card tilt-effect">
+                <h1>Infraestructura</h1>
+                <div class="grid grid-cols-2 gap-8 items-center">
+                    <div class="img-box">
+                        <img src="8.webp" class="slide-img cover-mode" alt="Infraestructura">
+                    </div>
+                    <div>
+                        <p>Concentrada en <b>RM</b> y <b>Magallanes</b>.</p>
+                        <div class="mt-4">
+                            <h3 class="text-yellow-400 font-bold">Desafío:</h3>
+                            <p>Expandir "Corredores Azules" en Ruta 5 para carga interregional.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. CONCLUSIONES -->
+        <div class="slide" id="slide11">
+            <div class="glass-card tilt-effect">
+                <h1>Conclusiones</h1>
+                <ul class="space-y-6 text-lg mt-4">
+                    <li class="p-4 bg-white/5 rounded-lg border-l-4 border-red-500"><b>Tecnología Puente:</b> Vital para descarbonizar HOY.</li>
+                    <li class="p-4 bg-white/5 rounded-lg border-l-4 border-red-500"><b>Rentabilidad:</b> Se paga sola en vehículos de alto uso.</li>
+                    <li class="p-4 bg-white/5 rounded-lg border-l-4 border-red-500"><b>Oportunidad:</b> Campo laboral para técnicos mecánicos.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 12. FINAL GRACIOSO -->
+        <div class="slide" id="slide12">
+            <div class="glass-card tilt-effect text-center">
+                <div style="transform: translateZ(50px);">
+                    <h1>¡Muchas Gracias!</h1>
+                    <div class="mt-8 mb-8 text-gray-300">
+                        <p class="text-xl font-bold text-white">Equipo:</p>
+                        <p>Millaray, Renato, Wiljer, Simón, Julio</p>
+                    </div>
+                    
+                    <!-- BOMBA -->
+                    <div class="bomb-container" id="bombContainer">
+                        <i class="fas fa-bomb fa-bomb"></i>
+                        <i class="fas fa-burst fa-burst"></i>
+                    </div>
+                    
+                    <!-- TEXTO GRACIOSO -->
+                    <div class="funny-text">
+                        ¡Y no explotamos en el intento! 💥😅<br>
+                        <span style="font-size: 1rem; color: white; font-weight: normal;">(Gracias a las válvulas de alivio)</span>
+                    </div>
+
+                    <h2 style="border:none; margin-top:30px;">¿Preguntas?</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <button id="prevBtn" class="nav-btn" onclick="changeSlide(-1)">❮ Anterior</button>
+    <button id="nextBtn" class="nav-btn" onclick="changeSlide(1)">Siguiente ❯</button>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+
+        function changeSlide(direction) {
+            document.getElementById(`slide${currentSlide}`).classList.remove('active');
+            currentSlide += direction;
+            if (currentSlide < 1) currentSlide = 1;
+            if (currentSlide > totalSlides) currentSlide = totalSlides;
+            document.getElementById(`slide${currentSlide}`).classList.add('active');
+
+            // Activar bomba
+            const bombContainer = document.getElementById('bombContainer');
+            if (currentSlide === totalSlides) {
+                bombContainer.classList.remove('bomb-active'); // Reset
+                void bombContainer.offsetWidth; // Trigger reflow
+                setTimeout(() => { bombContainer.classList.add('bomb-active'); }, 300);
+            } else {
+                bombContainer.classList.remove('bomb-active');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.tilt-effect');
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -3; 
+                    const rotateY = ((x - centerX) / centerX) * 3;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                } else {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
