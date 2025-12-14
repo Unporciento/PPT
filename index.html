@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistemas de Tracción | Professional</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- FUENTES: Roboto (Cuerpo) y Oswald (Títulos fuertes pero limpios) -->
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --eng-white: #f3f4f6;
+            --eng-dark: #111827;
+            --eng-blue: #0ea5e9; /* Azul técnico suave */
+            --eng-grey: #4b5563;
+        }
+
+        body {
+            background-color: var(--eng-white);
+            color: var(--eng-dark);
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+            height: 100vh; width: 100vw;
+        }
+
+        h1, h2, h3 { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* FONDO SUTIL */
+        .bg-pattern {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+        }
+
+        /* TRANSICIONES */
+        .slide {
+            position: absolute; inset: 0; display: flex; opacity: 0; pointer-events: none;
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease;
+            transform: translateY(20px);
+        }
+        .slide.active { opacity: 1; pointer-events: auto; z-index: 10; transform: translateY(0); }
+
+        /* TARJETAS LIMPIAS */
+        .clean-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            position: relative;
+        }
+        .clean-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--eng-blue);
+        }
+
+        /* MARCO DE VIDEO PROFESIONAL */
+        .pro-frame {
+            background: black;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 8px solid white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* HEADER ELEGANTE */
+        .top-bar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px;
+            background: white; border-bottom: 1px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+            z-index: 50;
+        }
+
+        /* CONTROL PANEL INFERIOR */
+        .control-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: white; border-top: 1px solid #e5e7eb;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+            z-index: 50;
+        }
+
+        /* BOTONES MINIMALISTAS */
+        .btn-minimal {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid #d1d5db; color: #4b5563;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.2s;
+        }
+        .btn-minimal:hover { background: var(--eng-dark); color: white; border-color: var(--eng-dark); }
+
+        /* NOTAS (GUION) */
+        .notes-overlay {
+            position: fixed; top: 90px; right: 40px; width: 350px;
+            background: white; border: 1px solid #e5e7eb; padding: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 100; display: none; border-radius: 4px;
+        }
+        .notes-overlay.show { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-pattern"></div>
+
+    <!-- HEADER -->
+    <div class="top-bar">
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-blue-600 text-white flex items-center justify-center font-bold font-mono text-xl">M</div>
+            <div>
+                <h3 class="text-gray-900 font-bold text-lg leading-none">SISTEMAS DE TRACCIÓN</h3>
+                <span class="text-xs text-gray-500 font-medium tracking-wider">EVALUACIÓN TÉCNICA 2025</span>
+            </div>
+        </div>
+        <div class="text-right">
+            <span class="text-xs text-gray-400 font-bold uppercase tracking-widest">INGENIERÍA EN MAQUINARIA</span>
+        </div>
+    </div>
+
+    <!-- GUION -->
+    <div id="notesPanel" class="notes-overlay">
+        <h4 class="text-xs font-bold text-gray-400 uppercase mb-2 border-b pb-2">Guion del Orador</h4>
+        <p id="noteText" class="text-sm text-gray-700 leading-relaxed">...</p>
+    </div>
+
+    <!-- SLIDES -->
+    <div class="slider-container relative w-full h-full pt-20 pb-16">
+
+        <!-- SLIDE 1: PORTADA (Limpia y Directa) -->
+        <div class="slide active" data-speaker="EQUIPO" data-note="Buenas tardes. Presentamos el análisis técnico de los sistemas de tracción modernos.">
+            <div class="w-full h-full flex">
+                <div class="w-1/2 flex flex-col justify-center px-20 bg-white border-r border-gray-200 z-10">
+                    <span class="text-blue-600 font-bold tracking-widest text-sm mb-4">INFORME TÉCNICO</span>
+                    <h1 class="text-7xl font-black text-gray-900 mb-6 leading-tight">MOTORES<br>ELÉCTRICOS</h1>
+                    <p class="text-xl text-gray-500 font-light mb-12">Control, Conexión y Variación de Frecuencia en Maquinaria Pesada.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 text-xs font-bold text-gray-400 border-t border-gray-100 pt-8">
+                        <span>MILLARAY AGUIRRE</span>
+                        <span>RENATO BÓRQUEZ</span>
+                        <span>WILJER MAMANI</span>
+                        <span>SIMÓN OLIVARES</span>
+                        <span>JULIO SINISTERRA</span>
+                    </div>
+                </div>
+                <div class="w-1/2 relative overflow-hidden">
+                    <video class="absolute inset-0 w-full h-full object-cover grayscale opacity-80" autoplay loop muted playsinline>
+                        <source src="grok-video-fe5e0fd2-c559-45df-9e4a-e182950e1369.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute inset-0 bg-blue-900/10"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: INTRODUCCIÓN (Motor Trifásico) -->
+        <div class="slide" data-speaker="SIMÓN" data-note="La industria ha evolucionado. Los motores de inducción trifásicos son el estándar por su robustez mecánica.">
+            <div class="w-full h-full flex items-center justify-center p-16 gap-16">
+                <div class="w-1/3">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6">El Estándar Industrial</h2>
+                    <p class="text-gray-600 leading-relaxed mb-8 text-lg">
+                        El motor de inducción trifásico (Jaula de Ardilla) es la fuerza motriz dominante por su eficiencia superior y robustez mecánica.
+                    </p>
+                    <div class="clean-card">
+                        <ul class="space-y-4 text-sm text-gray-700">
+                            <li class="flex justify-between border-b pb-2"><span>Tipo</span> <strong>Inducción AC</strong></li>
+                            <li class="flex justify-between border-b pb-2"><span>Fases</span> <strong>Trifásico (3)</strong></li>
+                            <li class="flex justify-between border-b pb-2"><span>Mantenimiento</span> <strong class="text-green-600">Bajo</strong></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="w-2/3 h-[500px] pro-frame">
+                    <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <source src="Video_de_Motor_Trifásico.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: CONEXIONES (Técnico y Datos) -->
+        <div class="slide" data-speaker="WILJER" data-note="Energía trifásica: 3 ondas a 120 grados. Conexión Estrella para arranque suave, Delta para potencia total.">
+            <div class="w-full h-full flex flex-col justify-center px-20">
+                <h2 class="text-4xl font-bold text-gray-900 mb-12 text-center">Topologías de Conexión</h2>
+                
+                <div class="flex gap-12 items-center">
+                    <div class="w-1/2 h-[400px] pro-frame shadow-xl">
+                        <video class="w-full h-full object-cover grayscale" autoplay loop muted playsinline>
+                            <source src="grok-video-7b958ffa-89e3-4abc-863d-f270f16d32d6.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    
+                    <div class="w-1/2 grid gap-6">
+                        <div class="clean-card border-l-4 border-l-blue-500">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">Estrella (Y)</h3>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">ARRANQUE</span>
+                            </div>
+                            <p class="text-gray-500 text-sm mb-4">Reduce el voltaje en la bobina para un inicio suave.</p>
+                            <div class="flex gap-8 text-sm font-mono">
+                                <div><span class="text-gray-400 block">VOLTAJE</span><span class="font-bold text-gray-800">220V</span></div>
+                                <div><span class="text-gray-400 block">CORRIENTE</span><span class="font-bold text-gray-800">33%</span></div>
+                            </div>
+                        </div>
+
+                        <div class="clean-card border-l-4 border-l-yellow-500">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-xl font-bold text-gray-800">Delta (Δ)</h3>
+                                <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded font-bold">MARCHA</span>
+                            </div>
+                            <p class="text-gray-500 text-sm mb-4">Configuración de trabajo a plena potencia.</p>
+                            <div class="flex gap-8 text-sm font-mono">
+                                <div><span class="text-gray-400 block">VOLTAJE</span><span class="font-bold text-gray-800">380V</span></div>
+                                <div><span class="text-gray-400 block">POTENCIA</span><span class="font-bold text-gray-800">100%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: PLANO ELÉCTRICO (SEPARADO Y LIMPIO) -->
+        <div class="slide" data-speaker="RENATO" data-note="Inversión de giro. Izquierda: Plano técnico. Derecha: Simulación de flujo de corriente.">
+            <div class="w-full h-full flex flex-col px-12 pt-10">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900">Diagrama de Fuerza y Control</h2>
+                    <p class="text-gray-500">Inversión de Giro + Arranque Escalonado</p>
+                </div>
+                
+                <div class="flex gap-8 h-[60vh]">
+                    <!-- IZQUIERDA: EL PLANO (Imagen Estática) -->
+                    <div class="w-1/2 bg-white p-4 shadow-lg border border-gray-200 relative">
+                        <span class="absolute top-0 left-0 bg-gray-800 text-white text-xs px-3 py-1 font-bold">PLANO TÉCNICO</span>
+                        <img src="estrella-triangulo-con-inversion-de-giro.jpg" class="w-full h-full object-contain" alt="Plano">
+                    </div>
+
+                    <!-- DERECHA: LA SIMULACIÓN (Video) -->
+                    <div class="w-1/2 bg-black shadow-lg border-4 border-gray-800 relative overflow-hidden">
+                        <span class="absolute top-0 left-0 bg-blue-600 text-white text-xs px-3 py-1 font-bold z-10">SIMULACIÓN</span>
+                        <video class="w-full h-full object-cover opacity-90" autoplay loop muted playsinline>
+                            <source src="Esquemático_Eléctrico_Animado_para_Planos.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: VDF (Video Cinta) -->
+        <div class="slide" data-speaker="MILLARAY" data-note="VDF: Variador de Frecuencia. Control total de velocidad. Esencial para procesos dinámicos como cintas transportadoras.">
+            <div class="w-full h-full flex items-center justify-center p-16 gap-16">
+                <div class="w-1/2">
+                    <h2 class="text-5xl font-bold text-gray-900 mb-2">VDF</h2>
+                    <h3 class="text-xl text-blue-600 font-bold mb-6 tracking-wider">VARIADOR DE FRECUENCIA</h3>
+                    <p class="text-gray-600 text-lg leading-relaxed mb-8">
+                        Dispositivo electrónico que modifica la frecuencia (Hz) para controlar velocidad y torque con precisión milimétrica.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="clean-card text-center p-4">
+                            <span class="text-3xl font-bold text-gray-800 block">50Hz</span>
+                            <span class="text-xs text-gray-400 uppercase">Input</span>
+                        </div>
+                        <div class="clean-card text-center p-4 border-blue-500">
+                            <span class="text-3xl font-bold text-blue-600 block">0-60Hz</span>
+                            <span class="text-xs text-gray-400 uppercase">Output Variable</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2 h-[450px] pro-frame">
+                    <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <source src="Video_de_Control_de_Velocidad_VDF.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: PARTIDOR SUAVE (Video Tubería) -->
+        <div class="slide" data-speaker="MILLARAY" data-note="Partidor Suave. Controla solo voltaje para arrancar sin golpes. Vital para evitar el Golpe de Ariete en bombas.">
+            <div class="w-full h-full flex items-center justify-center p-16 gap-16">
+                <div class="w-1/2 h-[450px] pro-frame border-gray-800">
+                    <video class="w-full h-full object-cover" autoplay loop muted playsinline>
+                        <source src="Video_de_Partidor_Suave_para_Tuberías.mp4" type="video/mp4">
+                    </video>
+                    <div class="absolute bottom-4 left-4 bg-red-600 text-white px-3 py-1 text-xs font-bold shadow-lg">PREVENCIÓN: GOLPE DE ARIETE</div>
+                </div>
+                <div class="w-1/2">
+                    <h2 class="text-4xl font-bold text-gray-900 mb-6">Partidor Suave</h2>
+                    <p class="text-gray-600 text-lg mb-8">
+                        Control de tensión mediante tiristores. No cambia la frecuencia, solo suaviza la rampa de arranque para proteger la mecánica y la red.
+                    </p>
+                    
+                    <h4 class="font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">APLICACIONES CRÍTICAS</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-center gap-4 bg-white p-3 shadow-sm border border-gray-100 rounded">
+                            <i class="fas fa-water text-blue-500 text-xl"></i>
+                            <div>
+                                <strong class="block text-gray-800 text-sm">Bombas Hidráulicas</strong>
+                                <span class="text-xs text-gray-500">Evita el retorno violento de fluido.</span>
+                            </div>
+                        </li>
+                        <li class="flex items-center gap-4 bg-white p-3 shadow-sm border border-gray-100 rounded">
+                            <i class="fas fa-fan text-gray-500 text-xl"></i>
+                            <div>
+                                <strong class="block text-gray-800 text-sm">Ventiladores</strong>
+                                <span class="text-xs text-gray-500">Evita patinamiento de correas.</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: CONCLUSIÓN -->
+        <div class="slide" data-speaker="JULIO" data-note="Conclusión: VDF para control total, Soft Starter para costo-efectividad. Saber elegir es la clave.">
+            <div class="w-full h-full flex flex-col justify-center items-center px-20">
+                <h2 class="text-4xl font-bold text-gray-900 mb-16">Cuadro Comparativo Final</h2>
+                
+                <div class="grid grid-cols-3 gap-8 w-full max-w-6xl">
+                    <div class="clean-card text-center opacity-60">
+                        <i class="fas fa-cogs text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Estrella-Delta</h3>
+                        <p class="text-sm text-gray-500 mt-2">Económico pero mecánico. Alto desgaste.</p>
+                    </div>
+                    
+                    <div class="clean-card text-center border-blue-500 transform scale-110 shadow-xl z-10">
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-3 py-1 text-xs font-bold rounded-full">OPTIMAL</div>
+                        <i class="fas fa-tachometer-alt text-5xl text-blue-600 mb-4"></i>
+                        <h3 class="text-xl font-bold text-gray-900">VDF</h3>
+                        <p class="text-sm text-gray-600 mt-2">Control total. Máxima eficiencia.</p>
+                    </div>
+
+                    <div class="clean-card text-center">
+                        <i class="fas fa-shield-alt text-4xl text-yellow-500 mb-4"></i>
+                        <h3 class="text-lg font-bold text-gray-800">Soft Starter</h3>
+                        <p class="text-sm text-gray-500 mt-2">Protección arranque. Costo medio.</p>
+                    </div>
+                </div>
+
+                <div class="mt-20 text-center">
+                    <h1 class="text-5xl font-black text-gray-900 mb-2">GRACIAS</h1>
+                    <p class="text-gray-400 font-mono text-sm tracking-widest">FIN DE LA PRESENTACIÓN</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- PANEL INFERIOR -->
+    <div class="control-bar">
+        <div class="flex items-center gap-6">
+            <div class="text-right border-r border-gray-200 pr-6">
+                <span class="block text-[10px] text-gray-400 font-bold uppercase">Orador</span>
+                <span class="block text-lg font-bold text-gray-900 uppercase" id="speakerName">Simón</span>
+            </div>
+            <div class="font-mono text-2xl text-gray-300 font-bold" id="slideNum">01/07</div>
+        </div>
+
+        <div class="flex gap-4">
+            <button class="btn-minimal" onclick="toggleNotes()" title="Ver Guion"><i class="fas fa-align-left"></i></button>
+            <button class="btn-minimal" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+            <button class="btn-minimal" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const speakerName = document.getElementById('speakerName');
+        const slideNum = document.getElementById('slideNum');
+        const noteText = document.getElementById('noteText');
+        const notesPanel = document.getElementById('notesPanel');
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        function updateUI() {
+            slides.forEach((s, i) => {
+                s.classList.remove('active');
+                if (i === currentSlide) {
+                    s.classList.add('active');
+                    speakerName.innerText = s.getAttribute('data-speaker') || 'Equipo';
+                    noteText.innerText = s.getAttribute('data-note') || '...';
+                }
+            });
+            slideNum.innerHTML = `0${currentSlide + 1}<span class="text-gray-300 text-lg">/0${totalSlides}</span>`;
+        }
+
+        function next() { if(currentSlide < totalSlides - 1) { currentSlide++; updateUI(); } }
+        function prev() { if(currentSlide > 0) { currentSlide--; updateUI(); } }
+        function toggleNotes() { notesPanel.classList.toggle('show'); }
+
+        document.getElementById('nextBtn').addEventListener('click', next);
+        document.getElementById('prevBtn').addEventListener('click', prev);
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') next();
+            if(e.key === 'ArrowLeft') prev();
+        });
+
+        updateUI();
+    </script>
+</body>
+</html>
