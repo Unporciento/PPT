@@ -1,219 +1,196 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrenador de Cables PRO</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #eef2f3; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .container { background: white; width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 25px; overflow: hidden; }
-        
-        h1 { text-align: center; color: #2c3e50; margin-top: 0; font-size: 1.5rem; }
-        
-        /* BOTONES DEL MENÚ */
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .mode-btn {
-            background: #fff; border: 2px solid #3498db; color: #3498db; padding: 20px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.2s;
-        }
-        .mode-btn:hover { background: #3498db; color: white; }
-        .mode-btn h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
-        
-        /* ÁREA DE DATOS (TARJETAS) */
-        .data-display { 
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; background: #f8f9fa; padding: 15px; border-radius: 10px;
-        }
-        .data-card { background: white; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .label { font-size: 0.8rem; color: #7f8c8d; display: block; margin-bottom: 5px; text-transform: uppercase; }
-        .value { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traductor Manga - Modo Pro</title>
 
-        /* PASOS Y EXPLICACIÓN */
-        .step-box { background: #e8f6f3; border-left: 5px solid #1abc9c; padding: 15px; margin: 15px 0; border-radius: 5px; }
-        .formula-text { font-family: monospace; font-size: 1.1rem; background: #333; color: #f1c40f; padding: 10px; border-radius: 5px; text-align: center; margin: 10px 0; }
+<style>
+/* --- TU ESTILO ORIGINAL (CON PEQUEÑAS MEJORAS) --- */
+body {
+  background: #0f0f0f;
+  color: #f0f0f0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 90vh;
+}
 
-        /* OPCIONES */
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .opt-btn {
-            padding: 15px; font-size: 1.1rem; border: 2px solid #bdc3c7; background: white; border-radius: 8px; cursor: pointer; color: #333; font-weight: bold;
-        }
-        .opt-btn:hover { border-color: #2c3e50; background: #ecf0f1; }
-        
-        .correct { background: #2ecc71 !important; border-color: #27ae60 !important; color: white !important; }
-        .wrong { background: #e74c3c !important; border-color: #c0392b !important; color: white !important; }
+h1 {
+  text-align: center;
+  color: #3b82f6;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+}
 
-        #exercise-area { display: none; }
-        .back-btn { background: #95a5a6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; }
-        #next-btn { width: 100%; padding: 15px; background: #f39c12; color: white; border: none; border-radius: 8px; font-size: 1.2em; font-weight: bold; cursor: pointer; margin-top: 20px; display: none; }
+.card {
+    background: #1a1a1a;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    border: 1px solid #333;
+}
 
-    </style>
+label {
+    font-size: 0.9em;
+    color: #888;
+    margin-bottom: 5px;
+    display: block;
+}
+
+textarea, select, button {
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 20px;
+  padding: 15px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  box-sizing: border-box; /* Importante para que no se salga del margen */
+  transition: all 0.3s ease;
+}
+
+textarea {
+  resize: vertical;
+  background: #252525;
+  color: #fff;
+  font-family: 'Consolas', monospace; /* Fuente tipo código para leer mejor */
+  min-height: 100px;
+}
+
+textarea:focus, select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #2a2a2a;
+}
+
+select {
+  background: #252525;
+  color: #fff;
+}
+
+button {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+.resultado {
+  background: #111;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  min-height: 60px;
+  color: #aaa;
+  font-size: 0.95em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.footer-note {
+    text-align: center;
+    font-size: 0.8em;
+    color: #555;
+    margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>📐 Entrenador de Cables</h1>
+<div class="card">
+    <h1>📖 Traductor Manga (Contexto + Alma)</h1>
 
-    <div id="main-menu">
-        <p style="text-align:center;">Selecciona qué quieres practicar:</p>
-        <div class="menu-grid">
-            <button class="mode-btn" onclick="startMode('density')">
-                <h3>Método Rápido</h3>
-                <small>Por Densidad (4 A/mm²)</small>
-            </button>
-            <button class="mode-btn" onclick="startMode('long')">
-                <h3>Fórmula Larga</h3>
-                <small>Por Caída de Tensión</small>
-            </button>
-        </div>
-    </div>
+    <label for="idiomaSelect">Idioma del Panel:</label>
+    <select id="idiomaSelect">
+      <option value="Japonés">Japonés (Manga)</option>
+      <option value="Coreano">Coreano (Manhwa)</option>
+      <option value="Chino">Chino (Manhua)</option>
+      <option value="Inglés">Inglés</option>
+      <option value="Ruso">Ruso</option>
+    </select>
 
-    <div id="exercise-area">
-        <button class="back-btn" onclick="location.reload()">← Menú</button>
-        
-        <div id="data-container"></div>
+    <label for="textoInput">Texto RAW:</label>
+    <textarea id="textoInput" rows="6" placeholder="Pega aquí el texto del panel..."></textarea>
 
-        <div id="instruction-text"></div>
+    <button onclick="generarPrompt()">✨ Copiar Fórmula Mágica</button>
 
-        <div class="options-grid" id="options-box"></div>
-        
-        <div id="feedback-msg" style="margin-top:15px; padding:10px; border-radius:5px; display:none; text-align:center; font-weight:bold;"></div>
-        <button id="next-btn" onclick="nextQuestion()">Siguiente ➡</button>
+    <div id="resultadoBox" class="resultado">
+      El estado aparecerá aquí...
     </div>
 </div>
 
+<div class="footer-note">
+    Este botón copia el PROMPT DE EXPERTO a tu portapapeles. <br>
+    Luego solo pégalo (Ctrl+V) en ChatGPT o Gemini.
+</div>
+
 <script>
-    let currentMode = '';
-    let currentQ = {};
+    // Aquí está la magia: El prompt que tu conseguiste
+    const promptBase = `
+Actúa como un traductor profesional especializado en manga/manhwa.
+Tu tarea es interpretar y adaptar el texto al español natural y LATINO, manteniendo emociones, subtexto y contexto.
 
-    function startMode(mode) {
-        currentMode = mode;
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('exercise-area').style.display = 'block';
-        nextQuestion();
-    }
+Reglas:
+1. Si suena robótico, cámbialo a natural.
+2. Adapta honoríficos solo si es vital.
+3. Mantén el tono (agresivo, sarcástico, tímido, etc.).
+4. Refleja silencios y pausas.
+5. NO CENSURES insultos si el contexto lo pide.
+6. Haz que el lector sienta lo que el personaje siente.
 
-    function nextQuestion() {
-        // Limpiar pantalla
-        document.getElementById('feedback-msg').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('options-box').innerHTML = '';
+Idioma original: [IDIOMA]
+Texto a traducir:
+"[TEXTO]"
 
-        if (currentMode === 'density') setupDensity();
-        else setupLong();
-    }
+Dame solo la traducción final y una nota breve de contexto si es necesario.
+    `;
 
-    function setupDensity() {
-        const I = (Math.floor(Math.random() * 6) + 1) * 5; // 5, 10... 30A
-        const exact = I / 4;
-        const commercial = getCommercial(exact);
+    function generarPrompt() {
+        // 1. Capturamos lo que escribiste
+        const idioma = document.getElementById('idiomaSelect').value;
+        const texto = document.getElementById('textoInput').value;
+        const output = document.getElementById('resultadoBox');
 
-        // 1. Mostrar Datos en Tarjetas
-        document.getElementById('data-container').innerHTML = `
-            <div class="data-display" style="grid-template-columns: 1fr 1fr;">
-                <div class="data-card">
-                    <span class="label">Consumo</span>
-                    <span class="value">${I} A</span>
-                </div>
-                <div class="data-card">
-                    <span class="label">Densidad Máx</span>
-                    <span class="value">4 A/mm²</span>
-                </div>
-            </div>
-        `;
-
-        // 2. Instrucción
-        document.getElementById('instruction-text').innerHTML = `
-            <div class="step-box">
-                divide la Corriente por 4:
-                <div class="formula-text">${I} ÷ 4 = ${exact.toFixed(2)} mm²</div>
-                Elige el cable comercial superior:
-            </div>
-        `;
-
-        currentQ = { correct: commercial };
-        renderOptions(commercial);
-    }
-
-    function setupLong() {
-        const is24V = Math.random() > 0.5;
-        const voltage = is24V ? 24 : 12;
-        const drop = is24V ? 0.72 : 0.36; // e
-        const L = Math.floor(Math.random() * 5) + 3; // 3 to 7m
-        const I = (Math.floor(Math.random() * 4) + 1) * 5; // 5 to 20A
-
-        const numerator = I * L * 0.017;
-        const exact = numerator / drop;
-        const commercial = getCommercial(exact);
-
-        // 1. Mostrar Datos en Tarjetas (GRID LIMPIO)
-        document.getElementById('data-container').innerHTML = `
-            <div class="data-display">
-                <div class="data-card">
-                    <span class="label">Sistema</span>
-                    <span class="value">${voltage}V</span>
-                </div>
-                <div class="data-card">
-                    <span class="label">Largo</span>
-                    <span class="value">${L} m</span>
-                </div>
-                <div class="data-card">
-                    <span class="label">Consumo</span>
-                    <span class="value">${I} A</span>
-                </div>
-            </div>
-        `;
-
-        // 2. Instrucción
-        document.getElementById('instruction-text').innerHTML = `
-            <div class="step-box">
-                <b>1. Multiplica arriba:</b> ${I} × ${L} × 0.017 = <b>${numerator.toFixed(3)}</b><br>
-                <b>2. Divide por caída (e):</b> Como es ${voltage}V, e = <b>${drop}</b><br>
-                <div class="formula-text">${numerator.toFixed(3)} ÷ ${drop} = ${exact.toFixed(2)}</div>
-            </div>
-        `;
-
-        currentQ = { correct: commercial };
-        renderOptions(commercial);
-    }
-
-    function getCommercial(val) {
-        const cables = [0.75, 1.0, 1.5, 2.5, 4.0, 6.0, 10.0];
-        for (let c of cables) if (c >= val) return c;
-        return 16.0;
-    }
-
-    function renderOptions(correct) {
-        const box = document.getElementById('options-box');
-        // Opciones fijas para no marear
-        const opts = [1.0, 1.5, 2.5, 4.0, 6.0];
-        if (!opts.includes(correct) && correct < 10) opts.push(correct);
-        opts.sort((a,b)=>a-b);
-
-        opts.forEach(val => {
-            const btn = document.createElement('button');
-            btn.className = 'opt-btn';
-            btn.innerText = val + " mm²";
-            btn.onclick = () => check(btn, val);
-            box.appendChild(btn);
-        });
-    }
-
-    function check(btn, val) {
-        const all = document.querySelectorAll('.opt-btn');
-        all.forEach(b => b.disabled = true);
-        const fb = document.getElementById('feedback-msg');
-        fb.style.display = 'block';
-
-        if (val === currentQ.correct) {
-            btn.classList.add('correct');
-            fb.style.background = "#d4edda"; fb.style.color = "#155724";
-            fb.innerText = "¡Correcto! Bien calculado.";
-        } else {
-            btn.classList.add('wrong');
-            // Marcar la buena
-            all.forEach(b => { if(parseFloat(b.innerText) === currentQ.correct) b.classList.add('correct'); });
-            fb.style.background = "#f8d7da"; fb.style.color = "#721c24";
-            fb.innerText = "Incorrecto. Mira el cálculo arriba.";
+        // Validación simple
+        if (!texto.trim()) {
+            output.textContent = "⚠️ ¡Primero pega algún texto del manga!";
+            output.style.color = "#ff6b6b";
+            return;
         }
-        document.getElementById('next-btn').style.display = 'block';
+
+        // 2. Insertamos tus datos en la fórmula
+        let promptFinal = promptBase.replace('[IDIOMA]', idioma);
+        promptFinal = promptFinal.replace('[TEXTO]', texto);
+
+        // 3. Copiamos al portapapeles del PC
+        navigator.clipboard.writeText(promptFinal).then(() => {
+            // Éxito
+            output.innerHTML = "✅ <b>¡Fórmula Copiada!</b> <br>Ahora ve a tu IA y presiona Ctrl+V";
+            output.style.color = "#4ecdc4";
+        }).catch(err => {
+            // Error
+            output.textContent = "❌ Error al copiar. Intenta manual.";
+            console.error('Error:', err);
+        });
     }
 </script>
 
