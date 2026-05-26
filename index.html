@@ -158,11 +158,12 @@
 </head>
 <body>
 <div id="progress-bar"></div>
-<div id="slide-counter">01 / 07</div>
+<div id="slide-counter">01 / 08</div>
 <div id="nav-hint">← Click izquierdo / Click derecho →</div>
 
 <div id="app-container">
 
+    <!-- SLIDE 1: PORTADA -->
     <div class="slide active" style="background: var(--bg-dark);">
         <div style="position:absolute;inset:0;z-index:0;">
             <video autoplay loop muted src="1.mp4" style="width:100%;height:100%;object-fit:cover;opacity:0.35;filter:grayscale(50%) contrast(1.1);"></video>
@@ -181,13 +182,12 @@
             </p>
             <div class="anim-up delay-4" style="margin-top:50px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#555;line-height:2;">
                 Docente: Gerardo Garrido Fernández &nbsp;|&nbsp; Sección: N1-O2-C2/V &nbsp;|&nbsp; Fecha: 15/05/2026<br>
-                <span style="color:#666;">Aguirre · Olivares · Ramírez · 
-                    
-                </span>
+                <span style="color:#666;">Aguirre · Olivares · Ramírez</span>
             </div>
         </div>
     </div>
 
+    <!-- SLIDE 2: INTRODUCCIÓN -->
     <div class="slide" style="background:var(--bg-dark);">
         <div class="split-screen">
             <div class="half-text">
@@ -220,6 +220,7 @@
         </div>
     </div>
 
+    <!-- SLIDE 3: PRINCIPIOS DE FUNCIONAMIENTO -->
     <div class="slide" style="background:var(--bg-dark);">
         <div class="split-screen">
             <div class="half-text">
@@ -262,6 +263,7 @@
         </div>
     </div>
 
+    <!-- SLIDE 4: TABLA DE COMPONENTES -->
     <div class="slide" style="background:#0d0d0d;">
         <div class="bg-number" style="top:10%;left:auto;right:-50px;">03</div>
         <div class="slide-scroll" style="justify-content:flex-start;">
@@ -338,6 +340,7 @@
         </div>
     </div>
 
+    <!-- SLIDE 5: NORMATIVAS -->
     <div class="slide" style="background:var(--bg-dark);">
         <div class="split-screen">
             <div class="half-text" style="flex:1.2;">
@@ -393,10 +396,11 @@
                         <p style="font-size:11px; color:#ccc; line-height:1.4; margin-top:10px; text-align: center;">Derrame de fluidos y omisión de seguridad.</p>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
     </div>
 
+    <!-- SLIDE 6: PLANO 1 -->
     <div class="slide" style="background:var(--bg-blue);">
         <div class="split-screen">
             <div class="half-text" style="padding-right: 20px;">
@@ -435,6 +439,42 @@
         </div>
     </div>
 
+    <!-- SLIDE 7: PLANO 2 (NUEVO) -->
+    <div class="slide" style="background:var(--bg-blue);">
+        <div class="split-screen">
+            <div class="half-text" style="padding-right: 20px;">
+                <div class="bg-number" style="top:20%;right:0;left:auto;">06</div>
+                <p class="anim-up label">Interpretación de Planos</p>
+                <h2 class="anim-up delay-1" style="font-size:clamp(28px,4vw,55px);">Circuito de<br><i style="font-weight:400;">Volteo y Levante</i></h2>
+                <p class="anim-up delay-2" style="font-size:clamp(12px,1.3vw,15px);color:#aaa;margin-top:8px;max-width:700px;line-height:1.6;">
+                    Representación esquemática de los circuitos hidráulicos de Volteo y Levante, mostrando la disposición de válvulas direccionales, actuadores y la unidad de potencia hidráulica.
+                </p>
+                
+                <div class="anim-up delay-3" style="display:flex;flex-direction:column;gap:12px; margin-top: 25px;">
+                    <div style="background:rgba(79,195,247,0.08);border-radius:8px;padding:12px;">
+                        <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4fc3f7;font-weight:600;margin-bottom:6px;">Circuito de Volteo</p>
+                        <p style="font-size:12px;color:#ccc;line-height:1.5;">Controla el movimiento de rotación del cucharón mediante una válvula direccional 4/3 accionada eléctricamente.</p>
+                    </div>
+                    <div style="background:rgba(197,160,89,0.1);border-radius:8px;padding:12px;">
+                        <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text-gold);font-weight:600;margin-bottom:6px;">Circuito de Levante</p>
+                        <p style="font-size:12px;color:#ccc;line-height:1.5;">Gestiona el movimiento vertical del brazo con idéntica arquitectura de control, operando de forma independiente.</p>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;">
+                        <p style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#fff;font-weight:600;margin-bottom:6px;">Unidad de Potencia (HPU)</p>
+                        <p style="font-size:12px;color:#ccc;line-height:1.5;">Motor M + Bomba hidráulica + Válvula de alivio + Manómetro + Tanque de retorno Ts. Comparten la fuente de presión ambos circuitos.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="half-visual anim-up delay-2" style="padding-left: 10px;">
+                <div class="media-box" style="height: 85%; width: 100%; box-shadow: none;">
+                    <img src="plano2.jpg" alt="Plano Hidráulico Volteo y Levante" style="width: 100%; height: 100%; object-fit: contain; background: rgba(255,255,255,0.97); border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: CONCLUSIÓN -->
     <div class="slide" style="background:var(--bg-dark);align-items:center;text-align:center;">
         <div style="position:absolute;inset:0;z-index:0;">
             <video autoplay loop muted src="1.mp4" style="width:100%;height:100%;object-fit:cover;opacity:0.12;filter:grayscale(100%);"></video>
