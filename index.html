@@ -498,38 +498,135 @@
     </div>
 </div>
 
+<style>
+/* ── PAUSA ── */
+#pause-btn {
+    position: fixed; top: 20px; right: 20px; z-index: 200;
+    width: 42px; height: 42px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+    color: #fff; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, opacity 0.3s;
+    backdrop-filter: blur(6px);
+}
+#pause-btn:hover { background: rgba(255,255,255,0.18); }
+#pause-btn.hidden { opacity: 0; pointer-events: none; }
+
+/* ── LIGHTBOX ── */
+#lightbox {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
+    cursor: zoom-out;
+}
+#lightbox.open { display: flex; }
+#lightbox img {
+    max-width: 92vw; max-height: 92vh;
+    border-radius: 6px; box-shadow: 0 0 60px rgba(0,0,0,0.8);
+    cursor: default; user-select: none;
+}
+#lightbox-close {
+    position: absolute; top: 18px; right: 24px;
+    color: rgba(255,255,255,0.5); font-size: 32px; cursor: pointer;
+    line-height: 1; transition: color 0.2s;
+}
+#lightbox-close:hover { color: #fff; }
+
+/* Cursor zoom-in en imágenes que se pueden ampliar */
+.zoomable { cursor: zoom-in !important; }
+</style>
+
+<!-- Botón pausa global -->
+<button id="pause-btn" title="Pausar / Reanudar videos (P)">▶</button>
+
+<!-- Lightbox -->
+<div id="lightbox">
+    <span id="lightbox-close">✕</span>
+    <img id="lightbox-img" src="" alt="">
+</div>
+
 <script>
+    /* ═══════════════════════════════════════════
+       ESTADO GLOBAL
+    ═══════════════════════════════════════════ */
     let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    const progressBar = document.getElementById('progress-bar');
+    let videosPaused = false;
+
+    const slides       = document.querySelectorAll('.slide');
+    const progressBar  = document.getElementById('progress-bar');
     const slideCounter = document.getElementById('slide-counter');
-    const navHint = document.getElementById('nav-hint');
-    let hintTimer = setTimeout(() => { navHint.style.opacity = '0'; navHint.style.transition = 'opacity 1s'; }, 4000);
-    
+    const navHint      = document.getElementById('nav-hint');
+    const pauseBtn     = document.getElementById('pause-btn');
+    const lightbox     = document.getElementById('lightbox');
+    const lightboxImg  = document.getElementById('lightbox-img');
+
+    setTimeout(() => {
+        navHint.style.opacity = '0';
+        navHint.style.transition = 'opacity 1s';
+    }, 4000);
+
     function pad(n) { return n < 10 ? '0' + n : '' + n; }
-    
-    function updateView() {
-        slides.forEach((slide, idx) => {
-            slide.classList.remove('active');
-            if (idx === currentSlide) slide.classList.add('active');
-        });
-        progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
-        slideCounter.innerText = `${pad(currentSlide + 1)} / ${pad(slides.length)}`;
-        const vids = slides[currentSlide].querySelectorAll('video');
-        vids.forEach(v => { v.currentTime = 0; v.play().catch(()=>{}); });
+
+    /* ═══════════════════════════════════════════
+       VIDEOS — reproducir con retry robusto
+       (fix para GitHub Pages / HTTPS autoplay)
+    ═══════════════════════════════════════════ */
+    function playVideo(v) {
+        if (videosPaused) return;
+        v.muted = true;          // garantiza autoplay en cualquier navegador
+        v.playsInline = true;
+        const attempt = () => v.play().catch(() => setTimeout(attempt, 300));
+        attempt();
     }
-    
+
+    function stopAllVideos() {
+        document.querySelectorAll('video').forEach(v => v.pause());
+    }
+
+    function playCurrentSlideVideos() {
+        if (videosPaused) return;
+        slides[currentSlide].querySelectorAll('video').forEach(v => {
+            v.currentTime = 0;
+            playVideo(v);
+        });
+    }
+
+    /* ═══════════════════════════════════════════
+       NAVEGACIÓN
+    ═══════════════════════════════════════════ */
+    function updateView() {
+        slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+        progressBar.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+        slideCounter.innerText  = `${pad(currentSlide + 1)} / ${pad(slides.length)}`;
+        // Pausar videos de slides no activos
+        slides.forEach((s, i) => {
+            if (i !== currentSlide) s.querySelectorAll('video').forEach(v => v.pause());
+        });
+        playCurrentSlideVideos();
+        // Mostrar botón pausa solo si el slide tiene video
+        const hasVid = slides[currentSlide].querySelector('video');
+        pauseBtn.classList.toggle('hidden', !hasVid);
+        if (hasVid) pauseBtn.textContent = videosPaused ? '▶' : '⏸';
+    }
+
     document.addEventListener('keydown', (e) => {
-        if (['ArrowRight', ' ', 'PageDown', 'ArrowDown'].includes(e.key) && currentSlide < slides.length - 1) {
+        if (lightbox.classList.contains('open')) {
+            if (e.key === 'Escape') closeLightbox();
+            return;
+        }
+        if (e.key === 'p' || e.key === 'P') { togglePause(); return; }
+        if (['ArrowRight',' ','PageDown','ArrowDown'].includes(e.key) && currentSlide < slides.length - 1) {
             currentSlide++; updateView();
-        } else if (['ArrowLeft', 'PageUp', 'ArrowUp'].includes(e.key) && currentSlide > 0) {
+        } else if (['ArrowLeft','PageUp','ArrowUp'].includes(e.key) && currentSlide > 0) {
             currentSlide--; updateView();
         }
     });
-    
+
     document.addEventListener('click', (e) => {
+        if (lightbox.classList.contains('open')) return;
         const tag = e.target.tagName.toLowerCase();
-        if (['a','button','input','select','textarea'].includes(tag)) return;
+        if (['button','input','select','textarea'].includes(tag)) return;
+        if (e.target.closest('#pause-btn')) return;
+        if (e.target.classList.contains('zoomable') || e.target.closest('.zoomable')) return;
         if (e.clientX > window.innerWidth / 2 && currentSlide < slides.length - 1) {
             currentSlide++; updateView();
         } else if (e.clientX <= window.innerWidth / 2 && currentSlide > 0) {
@@ -537,23 +634,82 @@
         }
     });
 
-    updateView();
-
-    // Intento inmediato de reproducir el video del slide 1 (funciona en algunos navegadores)
-    document.addEventListener('DOMContentLoaded', () => {
-        slides[0].querySelectorAll('video').forEach(v => v.play().catch(() => {}));
-    });
-    // Fix para GitHub Pages: el navegador bloquea autoplay hasta la primera interacción del usuario.
-    // En el primer click/tecla/toque, forzamos play del video de la portada.
-    function unlockFirstVideo() {
-        slides[0].querySelectorAll('video').forEach(v => v.play().catch(() => {}));
-        document.removeEventListener('click', unlockFirstVideo, true);
-        document.removeEventListener('keydown', unlockFirstVideo, true);
-        document.removeEventListener('touchstart', unlockFirstVideo, true);
+    /* ═══════════════════════════════════════════
+       PAUSA / REANUDA
+    ═══════════════════════════════════════════ */
+    function togglePause() {
+        videosPaused = !videosPaused;
+        const vids = slides[currentSlide].querySelectorAll('video');
+        if (videosPaused) {
+            vids.forEach(v => v.pause());
+            pauseBtn.textContent = '▶';
+            pauseBtn.title = 'Reanudar videos (P)';
+        } else {
+            vids.forEach(v => playVideo(v));
+            pauseBtn.textContent = '⏸';
+            pauseBtn.title = 'Pausar videos (P)';
+        }
     }
-    document.addEventListener('click', unlockFirstVideo, true);
-    document.addEventListener('keydown', unlockFirstVideo, true);
-    document.addEventListener('touchstart', unlockFirstVideo, true);
+
+    pauseBtn.addEventListener('click', (e) => { e.stopPropagation(); togglePause(); });
+
+    /* ═══════════════════════════════════════════
+       LIGHTBOX — ampliar imágenes al hacer clic
+    ═══════════════════════════════════════════ */
+    function openLightbox(src, alt) {
+        lightboxImg.src = src;
+        lightboxImg.alt = alt || '';
+        lightbox.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('open');
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
+
+    // Marcar todas las <img> de los slides como zoomables y añadir listener
+    document.querySelectorAll('.slide img').forEach(img => {
+        img.classList.add('zoomable');
+        img.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openLightbox(img.src, img.alt);
+        });
+    });
+
+    /* ═══════════════════════════════════════════
+       ARRANQUE — fix autoplay GitHub Pages
+       Los navegadores modernos bloquean autoplay
+       hasta la primera interacción del usuario.
+       Con 'muted' + retry el video arranca solo.
+    ═══════════════════════════════════════════ */
+    // Añadir muted + playsinline a todos los videos al vuelo
+    document.querySelectorAll('video').forEach(v => {
+        v.muted = true;
+        v.setAttribute('playsinline', '');
+    });
+
+    updateView(); // render inicial
+
+    // Intento inmediato (funciona en local y en algunos HTTPS)
+    slides[0].querySelectorAll('video').forEach(v => playVideo(v));
+
+    // Segundo intento tras la primera interacción (necesario en GitHub Pages)
+    function unlockMedia() {
+        if (!videosPaused) {
+            slides[currentSlide].querySelectorAll('video').forEach(v => playVideo(v));
+        }
+        document.removeEventListener('click',      unlockMedia, { capture: true, once: true });
+        document.removeEventListener('keydown',    unlockMedia, { capture: true, once: true });
+        document.removeEventListener('touchstart', unlockMedia, { capture: true, once: true });
+    }
+    document.addEventListener('click',      unlockMedia, { capture: true, once: true });
+    document.addEventListener('keydown',    unlockMedia, { capture: true, once: true });
+    document.addEventListener('touchstart', unlockMedia, { capture: true, once: true });
 </script>
 </body>
 </html>
