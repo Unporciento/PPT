@@ -7,7 +7,7 @@ export function initThree() {
   const wrapper = canvas.parentElement;
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
   // Subtle tone mapping improves realism without shader rewrites
@@ -77,6 +77,20 @@ export function initThree() {
   moonSphere.position.set(-20, 40, -60);
   moonSphere.visible = false;
   scene.add(moonSphere);
+
+  // Reflejo / halo del sol en el suelo — disco cálido y difuso que se proyecta
+  // en la dirección opuesta al ángulo del sol (simula luz directa)
+  const mSunGroundGlow = new THREE.MeshBasicMaterial({
+    color: 0xffe8a0, transparent: true, opacity: 0.0,
+    depthWrite: false, polygonOffset: true, polygonOffsetFactor: -5, polygonOffsetUnits: -5,
+  });
+  const sunGroundGlow = new THREE.Mesh(
+    new THREE.PlaneGeometry(22, 22, 1, 1),
+    mSunGroundGlow
+  );
+  sunGroundGlow.rotation.x = -Math.PI / 2;
+  sunGroundGlow.position.set(0, 0.04, 0);
+  scene.add(sunGroundGlow);
 
   let rainbowTimer = 0;
 
@@ -149,8 +163,8 @@ export function initThree() {
   }
 
   // ─── Límites ──────────────────────────────────────────────────────────────
-  const LAND_MAX_X = 19;
-  const SEA_START  = 20;
+  const LAND_MAX_X = 22;
+  const SEA_START  = 22;
 
   // ─── Suelo ────────────────────────────────────────────────────────────────
   const mGround  = new THREE.MeshLambertMaterial({ color: 0xc4b28a });
@@ -160,16 +174,17 @@ export function initThree() {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  const mBeach = new THREE.MeshLambertMaterial({ color: 0xd9cc98, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1 });
-  const beach  = new THREE.Mesh(new THREE.PlaneGeometry(3, 110), mBeach);
+  // Franja de arena de playa (cubre la unión tierra-mar)
+  const mBeach = new THREE.MeshLambertMaterial({ color: 0xddd0a0, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1 });
+  const beach  = new THREE.Mesh(new THREE.PlaneGeometry(5, 130), mBeach);
   beach.rotation.x = -Math.PI / 2;
   beach.position.set(SEA_START - 1.5, 0.01, 0);
   scene.add(beach);
-  // Línea de marea
-  const mWetSand = new THREE.MeshLambertMaterial({ color: 0xb8a878, transparent: true, opacity: 0.7, polygonOffset:true, polygonOffsetFactor:2, polygonOffsetUnits:1 });
-  const wetSand  = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 110), mWetSand);
+  // Arena húmeda — tapa exactamente la unión entre suelo y mar
+  const mWetSand = new THREE.MeshLambertMaterial({ color: 0xb8a070, transparent: true, opacity: 0.85, polygonOffset:true, polygonOffsetFactor:2, polygonOffsetUnits:1 });
+  const wetSand  = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 130), mWetSand);
   wetSand.rotation.x = -Math.PI / 2;
-  wetSand.position.set(SEA_START + 0.1, 0.02, 0);
+  wetSand.position.set(SEA_START + 0.25, 0.015, 0);
   scene.add(wetSand);
 
   // ── ZONA DE PLAYA: Franja de arena amplia antes del mar ───────────────────
@@ -257,59 +272,135 @@ export function initThree() {
   buildBeachShower(14, 32);
   buildBeachShower(14, 42);
 
-  // ─── Mar animado ──────────────────────────────────────────────────────────
+  // ─── Mar animado (MEJORADO) ────────────────────────────────────────────────
+  // Vertex shader: olas más orgánicas con múltiples frecuencias
   const seaVertexShader = `
     uniform float uTime;
     varying vec2  vUv;
     varying float vElevation;
     varying float vDistFromShore;
+    varying vec3  vWorldPos;
     void main() {
       vUv = uv;
+      // uv.x=0 es orilla, uv.x=1 es mar abierto (PlaneGeometry va de x negativo a positivo)
+      // El mesh está posicionado con x+ hacia el mar, así que usamos 1-uv.x para
+      // que distFromShore=0 en orilla y 1 en mar profundo.
       vDistFromShore = uv.x;
       vec3 pos = position;
-      float depthFactor = smoothstep(0.0, 0.35, vDistFromShore);
-      float wave1 = sin(pos.x * 0.14 + uTime * 0.9)  * 0.22 * depthFactor;
-      float wave2 = sin(pos.z * 0.18 + uTime * 0.65) * 0.18 * depthFactor;
-      float wave3 = sin((pos.x * 0.7 + pos.z * 0.5) * 0.10 + uTime * 1.2) * 0.12 * depthFactor;
-      float rippleV = sin(pos.x * 0.55 + uTime * 2.1) * sin(pos.z * 0.45 + uTime * 1.8) * 0.04;
-      pos.y += wave1 + wave2 + wave3 + rippleV;
-      vElevation = wave1 + wave2 + wave3;
+
+      // Amortiguación de olas en la orilla (cerca de shore=0 casi no hay amplitud)
+      float depthFactor = smoothstep(0.0, 0.40, vDistFromShore);
+
+      // Olas principales (viajan hacia la orilla, dirección -X)
+      float wave1 = sin(pos.x * 0.12 - uTime * 1.1  + pos.z * 0.05) * 0.30 * depthFactor;
+      float wave2 = sin(pos.x * 0.08 - uTime * 0.75 + pos.z * 0.09) * 0.22 * depthFactor;
+      // Olas secundarias transversales
+      float wave3 = sin(pos.z * 0.15 + uTime * 0.55 + pos.x * 0.03) * 0.14 * depthFactor;
+      // Rizado de superficie (chop)
+      float chop  = sin(pos.x * 0.60 + uTime * 2.2) * sin(pos.z * 0.50 + uTime * 1.9) * 0.05 * depthFactor;
+      // Ola de rompiente en la orilla
+      float shoreWave = sin(pos.x * 0.25 - uTime * 1.8) * 0.10 * (1.0 - smoothstep(0.0, 0.25, vDistFromShore));
+
+      pos.y += wave1 + wave2 + wave3 + chop + shoreWave;
+      vElevation = wave1 + wave2 + wave3 + shoreWave;
+      vWorldPos  = (modelMatrix * vec4(pos, 1.0)).xyz;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
     }
   `;
+
+  // Fragment shader: gradiente profundo→turquesa, espuma realista, reflejos dinámicos, transparencia en orilla
   const seaFragmentShader = `
     uniform float uTime;
     uniform float uNight;
     varying vec2  vUv;
     varying float vElevation;
     varying float vDistFromShore;
+    varying vec3  vWorldPos;
+
+    // Pseudo-ruido barato para variación de espuma
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+    float noise(vec2 p) {
+      vec2 i = floor(p); vec2 f = fract(p);
+      float a = hash(i); float b = hash(i+vec2(1,0));
+      float c = hash(i+vec2(0,1)); float d = hash(i+vec2(1,1));
+      vec2 u = f*f*(3.0-2.0*f);
+      return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;
+    }
+
     void main() {
-      vec3 shoreColor = mix(vec3(0.38,0.82,0.78), vec3(0.05,0.12,0.25), uNight);
-      vec3 midColor   = mix(vec3(0.10,0.55,0.72), vec3(0.03,0.08,0.20), uNight);
-      vec3 deepColor  = mix(vec3(0.04,0.28,0.52), vec3(0.01,0.04,0.14), uNight);
       float d = vDistFromShore;
-      vec3 col = mix(shoreColor, midColor,  smoothstep(0.0, 0.4, d));
-      col      = mix(col,        deepColor, smoothstep(0.4, 1.0, d));
-      float crest = smoothstep(0.10, 0.30, vElevation);
-      col = mix(col, vec3(0.55,0.88,0.90), crest * 0.35 * (1.0 - uNight * 0.6));
-      float foam = smoothstep(0.28, 0.38, vElevation);
-      col = mix(col, vec3(0.92,0.97,1.00), foam * 0.7);
-      float sunRefl = pow(max(vElevation,0.0),2.5) * smoothstep(0.5,1.0,vDistFromShore)*0.5;
-      col += vec3(sunRefl*0.9, sunRefl*0.75, sunRefl*0.3) * (1.0 - uNight);
-      // reflejo lunar de noche
-      col += vec3(sunRefl*0.2, sunRefl*0.3, sunRefl*0.6) * uNight;
-      float alpha = mix(0.60, 0.95, smoothstep(0.0, 0.3, d));
+
+      // ── Colores base (día) ─────────────────────────────────────────────────
+      // Orilla: turquesa brillante (casi transparente vemos el fondo arenoso)
+      vec3 shoreColor = vec3(0.42, 0.88, 0.82);
+      // Zona media: azul-verde caribe
+      vec3 midColor   = vec3(0.08, 0.52, 0.72);
+      // Mar profundo: azul intenso
+      vec3 deepColor  = vec3(0.02, 0.18, 0.48);
+
+      // Versiones nocturnas
+      vec3 shoreColorN = vec3(0.04, 0.10, 0.22);
+      vec3 midColorN   = vec3(0.02, 0.07, 0.18);
+      vec3 deepColorN  = vec3(0.01, 0.03, 0.12);
+
+      vec3 sc = mix(shoreColor, shoreColorN, uNight);
+      vec3 mc = mix(midColor,   midColorN,   uNight);
+      vec3 dc = mix(deepColor,  deepColorN,  uNight);
+
+      // Gradiente por profundidad con curva suave
+      vec3 col = mix(sc, mc, smoothstep(0.0, 0.35, d));
+      col      = mix(col, dc, smoothstep(0.35, 1.0, d));
+
+      // ── Cresta de ola (color celeste claro) ───────────────────────────────
+      float crest = smoothstep(0.08, 0.28, vElevation);
+      col = mix(col, vec3(0.52, 0.90, 0.92), crest * 0.45 * (1.0 - uNight * 0.7));
+
+      // ── Espuma (foam) con ruido para borde natural ─────────────────────────
+      float foamBase   = smoothstep(0.22, 0.36, vElevation);
+      // Ruido de espuma que se mueve con el tiempo
+      float foamNoise  = noise(vUv * vec2(18.0, 22.0) + vec2(-uTime * 0.35, 0.0));
+      float foam       = foamBase * (0.6 + foamNoise * 0.4);
+      // Franja de espuma en la orilla (rompiente)
+      float shoreBreak = (1.0 - smoothstep(0.0, 0.18, d)) * (0.5 + noise(vUv*vec2(10.0,8.0) + vec2(-uTime*0.5,0.0))*0.5);
+      foam = max(foam, shoreBreak * 0.9);
+      col  = mix(col, vec3(0.95, 0.98, 1.00), clamp(foam, 0.0, 1.0));
+
+      // ── Reflexión solar dinámica (glitter) ────────────────────────────────
+      // Simula brillos especulares del sol en la superficie
+      float glitter = noise(vUv * 40.0 + vec2(uTime * 1.2, uTime * 0.8));
+      float specMask = smoothstep(0.65, 1.0, glitter) * smoothstep(0.3, 1.0, d);
+      float sunSpec  = specMask * pow(max(vElevation + 0.3, 0.0), 1.5) * 0.8;
+      col += vec3(sunSpec*1.0, sunSpec*0.88, sunSpec*0.55) * (1.0 - uNight);
+
+      // Reflejo de ola (tono cálido en crestas de día)
+      float sunRefl = pow(max(vElevation, 0.0), 2.2) * smoothstep(0.45, 1.0, d) * 0.6;
+      col += vec3(sunRefl*0.85, sunRefl*0.70, sunRefl*0.25) * (1.0 - uNight);
+
+      // Reflejo lunar (franja tenue azul-plata)
+      float moonRefl = pow(max(vElevation, 0.0), 2.0) * smoothstep(0.4, 1.0, d) * 0.5;
+      col += vec3(moonRefl*0.25, moonRefl*0.35, moonRefl*0.70) * uNight;
+
+      // ── Transparencia: orilla casi transparente (fondo arenoso visible) ───
+      // d≈0 (orilla): alpha ~0.45; d≈1 (profundo): alpha ~0.96
+      float alpha = mix(0.45, 0.96, smoothstep(0.0, 0.40, d));
+      // La espuma es siempre opaca
+      alpha = max(alpha, foam * 0.95);
+
       gl_FragColor = vec4(col, alpha);
     }
   `;
+
   const seaUniforms = { uTime: { value: 0 }, uNight: { value: 0 } };
-  const seaMat  = new THREE.ShaderMaterial({
+  const seaMat = new THREE.ShaderMaterial({
     vertexShader: seaVertexShader, fragmentShader: seaFragmentShader,
     uniforms: seaUniforms, transparent: true, depthWrite: false, side: THREE.FrontSide,
   });
-  const seaMesh = new THREE.Mesh(new THREE.PlaneGeometry(60, 130, 64, 64), seaMat);
+  // El plano del mar (80u ancho). Borde izquierdo = SEA_START + 1 para que NO
+  // se meta bajo el terreno. La franja de arena húmeda tapa el milímetro de unión.
+  // center = (SEA_START + 1) + 40 = SEA_START + 41
+  const seaMesh = new THREE.Mesh(new THREE.PlaneGeometry(80, 130, 96, 96), seaMat);
   seaMesh.rotation.x = -Math.PI / 2;
-  seaMesh.position.set(SEA_START + 30, -0.08, 0);
+  seaMesh.position.set(SEA_START + 41, 0.02, 0);
   scene.add(seaMesh);
 
   // ─── Materiales ───────────────────────────────────────────────────────────
@@ -336,7 +427,6 @@ export function initThree() {
   const mHillDk   = new THREE.MeshLambertMaterial({ color: 0xa08860 });
   const mHuman    = new THREE.MeshLambertMaterial({ color: 0xf4a460 });
   const mGrass    = new THREE.MeshLambertMaterial({ color: 0x7a9a5a, polygonOffset:true, polygonOffsetFactor:1, polygonOffsetUnits:1 });
-  const mCar      = new THREE.MeshLambertMaterial({ color: 0x8b2020 });
   const mGlass    = new THREE.MeshLambertMaterial({ color: 0x334455, transparent: true, opacity: 0.7 });
   const mWheel    = new THREE.MeshLambertMaterial({ color: 0x222222 });
   const mManhole  = new THREE.MeshLambertMaterial({ color: 0x666055 });
@@ -527,7 +617,7 @@ export function initThree() {
   let waterDiscTimer = 0;
 
   // ─── Tuberías ─────────────────────────────────────────────────────────────
-  function makePipe(from, to, r = 0.20) {
+  function makePipe(from, to, r = 0.20, group = scene) {
     const dir = new THREE.Vector3().subVectors(to, from);
     const len = dir.length();
     if (len < 0.05) return null;
@@ -537,12 +627,12 @@ export function initThree() {
     mesh.position.copy(mid);
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
     mesh.castShadow = true;
-    scene.add(mesh);
+    group.add(mesh);
     return mesh;
   }
-  function makeCodo(x, y, z, r = 0.28) {
+  function makeCodo(x, y, z, r = 0.28, group = scene) {
     const m = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 10), mPipe);
-    m.position.set(x, y, z); scene.add(m);
+    m.position.set(x, y, z); group.add(m);
   }
   function makeManhole(x, z) {
     // Manhole sits 0.06 above road (Y=0.02) → center at 0.05
@@ -578,21 +668,8 @@ export function initThree() {
   scene.add(pipeNetGroup);
   pipeNetGroup.visible = false;
 
-  function makePipeNet(from, to, r = 0.18) {
-    const dir = new THREE.Vector3().subVectors(to, from);
-    const len = dir.length();
-    if (len < 0.05) return;
-    const mid  = new THREE.Vector3().addVectors(from, to).multiplyScalar(0.5);
-    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 10, 12), mPipe);
-    mesh.position.copy(mid);
-    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
-    mesh.castShadow = true;
-    pipeNetGroup.add(mesh);
-  }
-  function makeCodoNet(x, y, z, r = 0.22) {
-    const m = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 8), mPipe);
-    m.position.set(x, y, z); pipeNetGroup.add(m);
-  }
+  function makePipeNet(from, to, r = 0.18) { return makePipe(from, to, r, pipeNetGroup); }
+  function makeCodoNet(x, y, z, r = 0.22) { makeCodo(x, y, z, r, pipeNetGroup); }
 
   const NY = 0.28;
   // Casa central → colector principal norte-sur (espina X=1 a X=-8)
@@ -649,28 +726,6 @@ export function initThree() {
     );
     c.position.set(lx, 0.09, lz);
     scene.add(c);
-  }
-
-  // Línea discontinua (helper) — siempre a Y=0.04
-  function addDashes(x0,z0, x1,z1, dashLen=2.5, gapLen=2.5) {
-    const dx = x1-x0, dz = z1-z0;
-    const total = Math.sqrt(dx*dx+dz*dz);
-    const ux = dx/total, uz = dz/total;
-    const angle = Math.atan2(dz, dx);
-    let dist = gapLen*0.5; // start with half gap
-    const isVert = Math.abs(uz) > Math.abs(ux);
-    while (dist + dashLen <= total) {
-      const mx = x0 + ux*(dist + dashLen*0.5);
-      const mz = z0 + uz*(dist + dashLen*0.5);
-      const d = new THREE.Mesh(
-        isVert ? new THREE.PlaneGeometry(0.22, dashLen) : new THREE.PlaneGeometry(dashLen, 0.22),
-        mRoadLine
-      );
-      d.rotation.x = -Math.PI/2;
-      d.position.set(mx, 0.04, mz);
-      scene.add(d);
-      dist += dashLen + gapLen;
-    }
   }
 
   // Paso de cebra (helper)
@@ -1265,22 +1320,20 @@ export function initThree() {
 
   // ── Caminos internos entre filas de cabañas ───────────────────────────────
   // Espina dorsal central (X=1, de Z=-4 a Z=36)
-  const mPathSpine = new THREE.MeshLambertMaterial({
-    color: 0xbfaa7a, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
-  });
-  const pathSpine = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 42), mPathSpine);
+  // mRoad tiene exactamente el mismo color y polygonOffset — reutilizamos.
+  const pathSpine = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 42), mRoad);
   pathSpine.rotation.x = -Math.PI/2;
   pathSpine.position.set(1, 0.02, 15);
   scene.add(pathSpine);
   // Caminos transversales en cada Z de cabaña (conectan las 3 filas)
   [0, 10, 20, 30].forEach(z => {
-    const pathH = new THREE.Mesh(new THREE.PlaneGeometry(24, 1.6), mPathSpine);
+    const pathH = new THREE.Mesh(new THREE.PlaneGeometry(24, 1.6), mRoad);
     pathH.rotation.x = -Math.PI/2;
     pathH.position.set(1, 0.02, z + 1.5);
     scene.add(pathH);
   });
   // Camino lateral oeste → conecta fila Oeste con recepción
-  const pathWest = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 42), mPathSpine);
+  const pathWest = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 42), mRoad);
   pathWest.rotation.x = -Math.PI/2;
   pathWest.position.set(-8, 0.02, 15);
   scene.add(pathWest);
@@ -1305,11 +1358,8 @@ export function initThree() {
     scene.add(g);
   })(1, 15);  // centro del nuevo layout 3 filas
 
-  // Parche de césped bajo la pérgola
-  const mGrassCenter = new THREE.MeshLambertMaterial({
-    color: 0x6a9a4a, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1
-  });
-  const grassCenter = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), mGrassCenter);
+  // Parche de césped bajo la pérgola — mGrass tiene el mismo color y polygonOffset
+  const grassCenter = new THREE.Mesh(new THREE.PlaneGeometry(7, 5), mGrass);
   grassCenter.rotation.x = -Math.PI / 2;
   grassCenter.position.set(1, 0.025, 15);
   scene.add(grassCenter);
@@ -1363,6 +1413,13 @@ export function initThree() {
   // ══ NUBES QUE SE MUEVEN ══════════════════════════════════════════════════
   const mCloud = new THREE.MeshLambertMaterial({ color:0xffffff, transparent:true, opacity:0.82 });
   const clouds = [];
+
+  // Material compartido para sombras de nubes en el suelo
+  const mCloudShadow = new THREE.MeshBasicMaterial({
+    color: 0x000000, transparent: true, opacity: 0.13,
+    depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4,
+  });
+
   [
     { x:-30, y:28, z:-15, sx:5,   sy:2,   sz:3.5, spd:0.8  },
     { x:  5, y:32, z: -8, sx:7,   sy:2.2, sz:4,   spd:0.55 },
@@ -1380,7 +1437,19 @@ export function initThree() {
     });
     g.position.set(c.x, c.y, c.z);
     scene.add(g);
-    clouds.push({ group:g, spd:c.spd, baseX:c.x });
+
+    // Sombra proyectada en el suelo — elipse plana que sigue la nube
+    const shadowW = c.sx * 0.85;
+    const shadowD = c.sz * 0.75;
+    const cloudShadowMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(shadowW, shadowD, 1, 1),
+      mCloudShadow.clone() // clone para poder animar opacidad individualmente
+    );
+    cloudShadowMesh.rotation.x = -Math.PI / 2;
+    cloudShadowMesh.position.set(c.x + c.sx * 0.25, 0.03, c.z);
+    scene.add(cloudShadowMesh);
+
+    clouds.push({ group:g, spd:c.spd, baseX:c.x, shadow:cloudShadowMesh, shadowOffsetX: c.sx * 0.25 });
   });
 
   // ══ BANCO DE PECES bajo el mar ════════════════════════════════════════════
@@ -1527,8 +1596,7 @@ export function initThree() {
   // ═══════════════════════════════════════════════════════════════════════════
   const mPole    = new THREE.MeshLambertMaterial({ color: 0x555550 });
   const mLampCap = new THREE.MeshLambertMaterial({ color: 0x444440 });
-  // La esfera del farol cambia de color con emissive en updateDayNight
-  const mLampGlo = new THREE.MeshBasicMaterial({ color: 0x776633 });
+  // (bombilla: MeshStandardMaterial creado inline en buildStreetLamp)
 
   function buildStreetLamp(px, pz, rotY = 0) {
     const g = new THREE.Group();
@@ -1639,31 +1707,59 @@ export function initThree() {
   // ═══════════════════════════════════════════════════════════════════════════
   //  IDEA 2 — VELERO en el mar, se balancea suavemente
   // ═══════════════════════════════════════════════════════════════════════════
-  const mHull    = new THREE.MeshLambertMaterial({ color: 0xf5f0e8 });
-  const mMast    = new THREE.MeshLambertMaterial({ color: 0xd4c090 });
-  const mSail    = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
-  const mSailRed = new THREE.MeshLambertMaterial({ color: 0xcc3322, side: THREE.DoubleSide });
+  // ── Helper para construir un velero completo ──────────────────────────────
+  function buildSailboat(hullColor, sailColor, pennantColor, scale = 1) {
+    const g = new THREE.Group();
+    const mH = new THREE.MeshLambertMaterial({ color: hullColor });
+    const mS = new THREE.MeshLambertMaterial({ color: sailColor, side: THREE.DoubleSide, transparent: true, opacity: 0.92 });
+    const mP = new THREE.MeshLambertMaterial({ color: pennantColor, side: THREE.DoubleSide });
+    const mMast = new THREE.MeshLambertMaterial({ color: 0xd4b483 });
 
-  const sailboat = new THREE.Group();
-  sailboat.position.set(34, 0, 8);  // en el mar
+    const hull = new THREE.Mesh(new THREE.CylinderGeometry(0.6*scale, 1.0*scale, 0.8*scale, 10), mH);
+    hull.scale.z = 2.0; hull.position.y = 0.2*scale; hull.castShadow = true; g.add(hull);
+    const deck = new THREE.Mesh(new THREE.CylinderGeometry(0.56*scale, 0.56*scale, 0.14*scale, 10), mMast);
+    deck.scale.z = 2.0; deck.position.y = 0.62*scale; g.add(deck);
+    // Cabina pequeña
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(0.6*scale, 0.45*scale, 0.5*scale), mMast);
+    cabin.position.set(-0.1*scale, 0.95*scale, 0); g.add(cabin);
+    // Mástil
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.04*scale, 0.05*scale, 5.5*scale, 6), mMast);
+    mast.position.y = 3.5*scale; g.add(mast);
+    // Vela mayor
+    const sail = new THREE.Mesh(new THREE.ConeGeometry(1.6*scale, 4.2*scale, 3, 1, true), mS);
+    sail.position.set(0.3*scale, 3.1*scale, 0); sail.rotation.y = Math.PI / 5; g.add(sail);
+    // Vela proa (más pequeña, inclinada)
+    const jib = new THREE.Mesh(new THREE.ConeGeometry(1.0*scale, 3.0*scale, 3, 1, true), mS);
+    jib.position.set(0.8*scale, 2.5*scale, 0); jib.rotation.y = -Math.PI / 4; g.add(jib);
+    // Banderín
+    const pennant = new THREE.Mesh(new THREE.ConeGeometry(0, 0.35*scale, 3, 1, true), mP);
+    pennant.position.y = 6.1*scale; g.add(pennant);
+    return g;
+  }
 
-  // Casco
-  const hull = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 1.0, 0.8, 8), mHull);
-  hull.position.y = 0.2; sailboat.add(hull);
-  // Cubierta
-  const deck = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.58, 0.15, 8), mMast);
-  deck.position.y = 0.65; sailboat.add(deck);
-  // Mástil
-  const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 5.5, 6), mMast);
-  mast.position.y = 3.5; sailboat.add(mast);
-  // Vela principal (triángulo: ConeGeometry con radio=0 en la punta)
-  const sail = new THREE.Mesh(new THREE.ConeGeometry(1.6, 4.2, 3, 1, true), mSail);
-  sail.position.set(0.4, 3.2, 0); sail.rotation.y = Math.PI / 6; sailboat.add(sail);
-  // Banderín rojo en la cima
-  const pennant = new THREE.Mesh(new THREE.ConeGeometry(0, 0.4, 3, 1, true), mSailRed);
-  pennant.position.y = 6.0; sailboat.add(pennant);
-
+  // ── Barco 1: velero blanco-azul — navega lentamente en diagonal ──────────
+  const sailboat = buildSailboat(0x3a5f8a, 0xffffff, 0xcc3322, 1.0);
+  sailboat.position.set(48, 0, 5);
   scene.add(sailboat);
+
+  // ── Barco 2: pesquero rojo oscuro — patrulla paralelo a la orilla ─────────
+  const boat2 = buildSailboat(0x7a2c1e, 0xf5e0b0, 0x336633, 0.75);
+  boat2.position.set(52, 0, -12);
+  scene.add(boat2);
+
+  // ── Barco 3: velero más pequeño verde — cruza más al fondo ────────────────
+  const boat3 = buildSailboat(0x2e5c3a, 0xeeeedd, 0xcc9922, 0.85);
+  boat3.position.set(58, 0, 20);
+  scene.add(boat3);
+
+  // Datos de navegación para cada barco (movimiento en el mar, nunca regresa a playa)
+  // Cada barco sigue una ruta elíptica centrada lejos de la orilla
+  const boats = [
+    // { mesh, cx, cz, rx, rz, speed, phase, waveAmp, waveFreq }
+    { mesh: sailboat, cx: 52, cz:  5, rx: 8,  rz: 12, speed: 0.09, phase: 0.0,          waveAmp: 0.06, waveFreq: 0.4  },
+    { mesh: boat2,    cx: 58, cz:-10, rx: 6,  rz: 8,  speed: 0.14, phase: Math.PI*0.7,  waveAmp: 0.05, waveFreq: 0.55 },
+    { mesh: boat3,    cx: 65, cz: 18, rx: 10, rz: 7,  speed: 0.07, phase: Math.PI*1.3,  waveAmp: 0.07, waveFreq: 0.35 },
+  ];
 
   // ═══════════════════════════════════════════════════════════════════════════
   //  IDEA 3 — PALMERAS QUE SE MECEN con el viento (fronds oscilan)
@@ -1760,31 +1856,66 @@ export function initThree() {
   moonReflect.position.set(38, 0.05, -10);
   scene.add(moonReflect);
 
-  // ══ MUELLE / EMBARCADERO ══════════════════════════════════════════════════
-  const mWood   = new THREE.MeshLambertMaterial({ color:0x8B6334 });
-  const mWoodDk = new THREE.MeshLambertMaterial({ color:0x5c3d1e });
-  const mBuoy   = new THREE.MeshLambertMaterial({ color:0xee4422 });
-  const pier    = new THREE.Group();
-  pier.position.set(20, 0, 18);
-  for (let i=0; i<9; i++) {
-    const plank = new THREE.Mesh(new THREE.BoxGeometry(1.1,0.12,0.22), mWood);
-    plank.position.set(i*1.1, 0.55, 0); pier.add(plank);
+  // ══ MUELLE / EMBARCADERO (MEJORADO) ═════════════════════════════
+  const mWood    = new THREE.MeshLambertMaterial({ color:0x9B7344 });
+  const mWoodDk  = new THREE.MeshLambertMaterial({ color:0x5c3d1e });
+  const mWoodAlt = new THREE.MeshLambertMaterial({ color:0x7a5528 });
+  const mBuoy    = new THREE.MeshLambertMaterial({ color:0xee4422 });
+  const mPierRail = new THREE.MeshLambertMaterial({ color:0x4a2e10 });
+  const pier     = new THREE.Group();
+
+  pier.position.set(10, 0, 18);
+  const PIER_LEN  = 16;
+  const PIER_W    = 3.0;
+  const PLANK_CNT = 15;
+  const PLANK_SP  = PIER_LEN / PLANK_CNT;
+
+  for (let i = 0; i < PLANK_CNT; i++) {
+    const mat = i % 2 === 0 ? mWood : mWoodAlt;
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(PLANK_SP - 0.06, 0.10, PIER_W), mat);
+    plank.position.set(i * PLANK_SP + PLANK_SP/2, 0.55, 0);
+    plank.castShadow = true; plank.receiveShadow = true;
+    pier.add(plank);
   }
-  [-0.5,0.5].forEach(z => {
-    const beam = new THREE.Mesh(new THREE.BoxGeometry(10,0.16,0.12), mWoodDk);
-    beam.position.set(4.5, 0.48, z); pier.add(beam);
+
+  [-1.2, 0, 1.2].forEach(z => {
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(PIER_LEN, 0.14, 0.18), mWoodDk);
+    beam.position.set(PIER_LEN/2, 0.44, z);
+    pier.add(beam);
   });
-  [[0,0],[4.5,0],[9,0]].forEach(([x,z]) => {
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.09,1.2,6), mWoodDk);
-    post.position.set(x, 0, z); pier.add(post);
+
+  [0, 4, 8, 12, PIER_LEN].forEach(x => {
+    [-1.3, 1.3].forEach(z => {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.12, 1.6, 7), mWoodDk);
+      post.position.set(x, -0.25, z);
+      post.castShadow = true;
+      pier.add(post);
+    });
   });
+
+  [-PIER_W/2, PIER_W/2].forEach(z => {
+    const rail = new THREE.Mesh(new THREE.BoxGeometry(PIER_LEN, 0.08, 0.08), mPierRail);
+    rail.position.set(PIER_LEN/2, 1.1, z);
+    pier.add(rail);
+    for (let i = 0; i <= PLANK_CNT; i += 2) {
+      const bal = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.55, 5), mPierRail);
+      bal.position.set(i * PLANK_SP, 0.82, z);
+      pier.add(bal);
+    }
+  });
+
   const buoyGroup = new THREE.Group();
-  const buoyBody  = new THREE.Mesh(new THREE.SphereGeometry(0.28,8,6), mBuoy);
+  const buoyBody  = new THREE.Mesh(new THREE.SphereGeometry(0.30, 8, 6), mBuoy);
   buoyGroup.add(buoyBody);
-  const buoyTop = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.5,6), mBuoy);
-  buoyTop.position.y=0.55; buoyGroup.add(buoyTop);
-  buoyGroup.position.set(10.5, 0.28, 0);
+  const buoyTop = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.55, 6), mBuoy);
+  buoyTop.position.y = 0.60; buoyGroup.add(buoyTop);
+  buoyGroup.position.set(PIER_LEN + 0.6, 0.3, 0);
   pier.add(buoyGroup);
+
+  const buoy2 = buoyGroup.clone();
+  buoy2.position.set(PIER_LEN - 1, 0.3, PIER_W/2 + 0.6);
+  pier.add(buoy2);
+
   scene.add(pier);
 
   // ══ MODO RADIOGRAFÍA ══════════════════════════════════════════════════════
@@ -1959,6 +2090,7 @@ export function initThree() {
   // ─── Resize ───────────────────────────────────────────────────────────────
   function resize() {
     renderer.setSize(wrapper.clientWidth, wrapper.clientHeight, false);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     camera.aspect = wrapper.clientWidth / wrapper.clientHeight;
     camera.updateProjectionMatrix();
   }
@@ -2045,11 +2177,24 @@ export function initThree() {
       -60
     );
 
-    // ── Velero balanceándose ────────────────────────────────────────
-    sailboat.rotation.z = Math.sin(elapsed * 0.4) * 0.06;
-    sailboat.rotation.x = Math.sin(elapsed * 0.3 + 1.2) * 0.04;
-    sailboat.position.x = 34 + Math.sin(elapsed * 0.15) * 1.2;
-    sailboat.position.z =  8 + Math.cos(elapsed * 0.18) * 0.8;
+    // ── Barcos navegando en el mar (órbita elíptica, nunca regresan a playa) ─
+    boats.forEach(b => {
+      const angle = elapsed * b.speed + b.phase;
+      // Posición en elipse — siempre dentro del mar (x > SEA_START + 5)
+      b.mesh.position.x = b.cx + Math.cos(angle) * b.rx;
+      b.mesh.position.z = b.cz + Math.sin(angle) * b.rz;
+      // Cabeceo suave (balanceo de olas)
+      b.mesh.rotation.z = Math.sin(elapsed * b.waveFreq) * b.waveAmp;
+      b.mesh.rotation.x = Math.sin(elapsed * b.waveFreq * 0.7 + 1.2) * b.waveAmp * 0.7;
+      // Orientar en la dirección de movimiento
+      const vx = -Math.sin(angle) * b.rx * b.speed;
+      const vz =  Math.cos(angle) * b.rz * b.speed;
+      if (Math.abs(vx) + Math.abs(vz) > 0.001) {
+        b.mesh.rotation.y = Math.atan2(vx, vz);
+      }
+      // Pequeño bob vertical (olas)
+      b.mesh.position.y = Math.sin(elapsed * b.waveFreq * 1.1 + b.phase) * 0.12;
+    });
 
     // ── Palmeras meciéndose con el viento ──────────────────────────
     palmGroups.forEach(p => {
@@ -2063,15 +2208,33 @@ export function initThree() {
     const _cloudColorDirty = Math.abs(t - (cloudLastT ?? -1)) > 0.005;
     if (_cloudColorDirty) cloudLastT = t;
     const _cr = 1-t*0.7, _cg = 1-t*0.7, _cb = 1-t*0.5, _cop = 0.82 - t*0.3;
+    // Sombra de nubes: más intensa de día, invisible de noche
+    const _cloudShadowOp = THREE.MathUtils.lerp(0.13, 0.01, t);
     clouds.forEach(c => {
       c.group.position.x += c.spd * delta;
       if (c.group.position.x > 70) c.group.position.x = c.baseX - 70;
+      // Proyectar sombra en suelo siguiendo ángulo del sol
+      const _sunOfsX = sunSphere.position.x * 0.15;
+      const _sunOfsZ = sunSphere.position.z * 0.05;
+      c.shadow.position.x = c.group.position.x + (c.shadowOffsetX || 0) - _sunOfsX;
+      c.shadow.position.z = c.group.position.z - _sunOfsZ;
       if (_cloudColorDirty) {
+        c.shadow.material.opacity = _cloudShadowOp;
         c.group.children.forEach(ch => {
           if (ch.isMesh) { ch.material.color.setRGB(_cr,_cg,_cb); ch.material.opacity = _cop; }
         });
       }
     });
+
+    // ── Halo de luz solar en el suelo (sigue al sol) ────────────────
+    {
+      const _sunH = Math.max(sunSphere.position.y, 1);
+      const _pFactor = 1 - Math.min(_sunH / 75, 0.80);
+      sunGroundGlow.position.x = sunSphere.position.x * _pFactor;
+      sunGroundGlow.position.z = sunSphere.position.z * _pFactor * 0.4;
+      const _sunAlt = Math.max(0, Math.sin(elapsed * 0.04 - Math.PI * 0.3));
+      mSunGroundGlow.opacity = _sunAlt * 0.20 * (1 - t);
+    }
 
     // MEJORA 7 — Estrellas centelleando de noche
     if (stars.visible) {
