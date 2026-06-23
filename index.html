@@ -84,8 +84,8 @@ body{
 .progress-track::after{
   content:"";position:absolute;inset:0;
   background:repeating-linear-gradient(
-    90deg,transparent 0,transparent calc(100%/15 - 2px),
-    var(--bg-base) calc(100%/15 - 2px),var(--bg-base) calc(100%/15)
+    90deg,transparent 0,transparent calc(100%/31 - 1px),
+    var(--bg-base) calc(100%/31 - 1px),var(--bg-base) calc(100%/31)
   );
   pointer-events:none;
 }
@@ -508,7 +508,250 @@ const questions = [
     ],
     correct:1,
     justification:"Según el Glosario INACAP, el Ladder (LD) es un lenguaje de programación por medio de diagrama de contactos o diagrama escalera, y es uno de los más populares en la programación de los controladores lógicos programables (PLCs). Su representación visual imita la lógica de los antiguos circuitos eléctricos cableados: los contactos (sensores, botones, presostatos) se disponen en 'escalones' horizontales y las bobinas (electroválvulas, lámparas, alarmas) a la derecha de cada escalón. Esta similitud con la lógica cableada tradicional hace que sea fácil de leer y diagnosticar por técnicos en terreno, lo que explica su amplia adopción en automatización industrial de maquinaria pesada."
+  },
+
+  // ─── BLOQUE 6: ACUMULADORES ───
+  {
+    category:"Acumuladores · Tipos",
+    tagClass:"tag-comp",
+    type:"Tecnicismo",
+    question:"El sistema de frenos de emergencia de un camión tolva Komatsu 930E utiliza acumuladores hidráulicos para garantizar frenado incluso con el motor apagado. Según el material de la asignatura, ¿cuántos y cuáles son los tipos básicos de acumuladores oleohidráulicos?",
+    options:[
+      "Dos tipos: acumulador de membrana y acumulador de émbolo, ambos funcionan solo con aceite a presión.",
+      "Cuatro tipos: acumulador de vacío, de presión positiva, de presión negativa y de presión diferencial.",
+      "Tres tipos: acumulador contrapesado, acumulador de resorte y acumulador cargado con gas (el más común en maquinaria pesada).",
+      "Un solo tipo universal: todos los acumuladores son de vejiga de nitrógeno independientemente de su marca."
+    ],
+    correct:2,
+    justification:"Según la Unidad 1 de GMON32, existen tres tipos básicos de acumuladores oleohidráulicos: (1) Acumulador contrapesado — utiliza el peso de una masa para mantener la presión; (2) Acumulador de resorte — usa la energía potencial de un resorte comprimido; y (3) Acumulador cargado con gas — el más utilizado en maquinaria pesada, donde un gas (normalmente nitrógeno seco) separado del aceite por una membrana, vejiga o émbolo flotante almacena la energía. Por eso, antes de intervenir el sistema hidráulico de estos equipos, el protocolo LOTO exige descargar o aislar los acumuladores, ya que permanecen presurizados incluso con el motor apagado."
+  },
+  // ─── BLOQUE 7: FILTROS ───
+  {
+    category:"Componentes · Filtros Hidráulicos",
+    tagClass:"tag-comp",
+    type:"Tecnicismo",
+    question:"Durante una inspección de mantenimiento de un bulldozer CAT D6T se detecta que el indicador de diferencial de presión del filtro hidráulico está en zona roja. ¿Qué significa esto técnicamente y cuál es la acción correcta?",
+    options:[
+      "Significa que la presión del sistema es demasiado alta; hay que reducir la presión abriendo la válvula de alivio.",
+      "El filtro está saturado de contaminantes: la diferencia de presión entre la entrada y salida del elemento filtrante ha superado el límite, lo que indica que el filtro debe reemplazarse de inmediato para evitar que la válvula bypass se abra y el aceite sucio circule sin filtrarse.",
+      "El filtro está en perfectas condiciones; el color rojo indica que la temperatura del aceite está dentro del rango normal de operación.",
+      "Solo indica que el aceite está caliente; se debe apagar el motor 10 minutos para que el indicador vuelva al verde."
+    ],
+    correct:1,
+    justification:"Según la Unidad 1 (GMON32), los filtros mantienen el aceite hidráulico limpio reteniendo los contaminantes que pueden dañar las piezas de los componentes. A medida que el filtro acumula contaminantes, la resistencia al flujo aumenta, elevando la diferencia de presión (diferencial) entre su entrada y salida. Cuando esta diferencia supera el límite diseñado, el indicador de diferencial entra en zona de alerta (rojo), señalando que el elemento filtrante está saturado y debe reemplazarse. Si no se actúa, la válvula de bypass (derivación) del filtro se abre para proteger la bomba de la cavitación, pero permite que el aceite contaminado circule libremente por el sistema, dañando bombas, válvulas y cilindros."
+  },
+  // ─── BLOQUE 8: ENFRIADORES ───
+  {
+    category:"Componentes · Enfriadores de Aceite",
+    tagClass:"tag-comp",
+    type:"Caso Práctico",
+    question:"Una excavadora que opera en una mina subterránea sin ventilación natural presenta sobrecalentamiento crónico del aceite hidráulico. El técnico evalúa los tipos de enfriador disponibles. ¿Cuáles son los dos tipos de enfriadores de aceite hidráulico mencionados en el material y cuál sería el más adecuado para este caso?",
+    options:[
+      "Solo existe un tipo: el enfriador de aceite por nitrógeno, estándar en toda maquinaria de interior mina.",
+      "Enfriador aire-aceite (tubos con aletas enfriados por ventilador o movimiento de la máquina) y enfriador agua-aceite (tubos y coraza). Para interior mina sin flujo de aire, el enfriador agua-aceite es más adecuado ya que no depende del movimiento de aire ambiental.",
+      "Enfriador de aceite por combustión y enfriador criogénico; el criogénico es el único apto para ambientes subterráneos.",
+      "Enfriador eléctrico por resistencia (calienta el aceite para mantenerlo fluido) y enfriador de paletas (reduce la temperatura por fricción)."
+    ],
+    correct:1,
+    justification:"La Unidad 1 (GMON32) describe dos tipos de enfriadores hidráulicos: (1) Aire-aceite: el aceite pasa por tubos con aletas que son refrigerados por un ventilador o por el movimiento de la máquina; requiere un buen flujo de aire ambiente. (2) Agua-aceite: el aceite pasa a través de un intercambiador de tubos y coraza donde el agua lo enfría. En una mina subterránea sin ventilación natural, el flujo de aire es insuficiente para el enfriador aire-aceite, por lo que el enfriador agua-aceite es la solución técnica correcta, siempre que haya suministro de agua de refrigeración disponible en la galería."
+  },
+  // ─── BLOQUE 9: TUBERÍAS Y MANGUERAS ───
+  {
+    category:"Componentes · Tuberías y Mangueras",
+    tagClass:"tag-comp",
+    type:"Caso Práctico",
+    question:"Al inspeccionar un cilindro de levante de una pala hidráulica, se detecta que las mangueras flexibles que conectan el cilindro al bloque de válvulas están colapsadas (aplastadas) por dentro. ¿Por qué se utilizan mangueras flexibles (en vez de tuberías rígidas) en esta conexión específica, y qué problema puede causar el colapso interno?",
+    options:[
+      "Las mangueras flexibles se usan porque son más baratas; el colapso no genera ningún problema ya que el aceite puede fluir por las paredes colapsadas.",
+      "Se usan porque el cilindro tiene movimiento relativo respecto al bastidor; las mangueras absorben vibración y permiten ese movimiento. El colapso interno genera una restricción al flujo que puede causar cavitación en la bomba, movimiento errático del cilindro y pérdida de potencia.",
+      "Las mangueras flexibles solo se usan en sistemas neumáticos; en hidráulica siempre se deben usar tuberías rígidas de acero.",
+      "El colapso es normal en operación: las mangueras se aplanan cuando el cilindro está extendido y vuelven a su forma al contraerse."
+    ],
+    correct:1,
+    justification:"Según la Unidad 1 (GMON32), las mangueras hidráulicas se utilizan cuando se necesita flexibilidad, como cuando los componentes tienen movimiento relativo con respecto a otro (como un cilindro que se extiende y contrae respecto al bastidor). Las mangueras además absorben vibraciones y resisten variaciones de presión. Un colapso interno (aplastamiento de la pared interior) genera una restricción severa al paso del aceite, equivalente a cerrar parcialmente una válvula: puede causar cavitación en la bomba por insuficiente retorno de aceite, movimiento irregular y lento del actuador, sobrecalentamiento del aceite y, en casos extremos, falla del componente hidráulico aguas arriba de la restricción."
+  },
+  // ─── BLOQUE 10: VÁLVULA DE RETENCIÓN ───
+  {
+    category:"Válvulas · Retención y Bloqueo",
+    tagClass:"tag-valid",
+    type:"Tecnicismo",
+    question:"En un circuito hidráulico de carga contrapeso de una grúa se instala una válvula de retención (check valve) en la línea de bajada del cilindro. ¿Cuál es el principio de funcionamiento de esta válvula y para qué sirve en esta aplicación?",
+    options:[
+      "La válvula de retención permite flujo en ambas direcciones pero reduce la presión a la mitad, protegiendo el cilindro de sobrecargas.",
+      "El diseño más común consiste en un pistón o bola y un resorte que permite el flujo solo en un sentido; en sentido contrario, la presión cierra el obturador. En la grúa, impide que la carga baje por gravedad si falla la bomba o se suelta una manguera, manteniendo el cilindro bloqueado en posición.",
+      "La válvula de retención abre y cierra eléctricamente según la señal del PLC, controlando el caudal de descenso de forma proporcional.",
+      "Es una válvula de tres posiciones que puede bloquear, permitir o invertir el flujo según la presión del sistema."
+    ],
+    correct:1,
+    justification:"Según la Unidad 1 (GMON32), la válvula de retención (o de bloqueo) tiene el diseño más común con un pistón o una bola y un resorte. Permite el flujo en una sola dirección: cuando el fluido empuja a favor del sentido permitido, vence la fuerza del resorte y abre el paso; en sentido contrario, la presión del fluido presiona el obturador contra su asiento, cerrando herméticamente el paso. En aplicaciones de izaje como grúas o cargadores, estas válvulas se instalan para retener la carga en posición aunque falle la bomba o se produzca una rotura de manguera, evitando una caída catastrófica del implemento. Se utilizan a menudo en combinación con otras válvulas."
+  },
+  // ─── BLOQUE 11: ACTUADORES ───
+  {
+    category:"Actuadores Oleohidráulicos",
+    tagClass:"tag-comp",
+    type:"Tecnicismo",
+    question:"Una excavadora hidráulica utiliza cilindros para mover el brazo y el cucharón (movimiento lineal), y motores hidráulicos para girar la superestructura (movimiento rotatorio). ¿Cómo se clasifican estos actuadores según el material de la asignatura?",
+    options:[
+      "Actuadores de simple efecto (solo empujan) y doble efecto (empujan y jalan); los motores eléctricos no son actuadores hidráulicos.",
+      "Actuadores lineales (cilindros hidráulicos, que convierten energía oleohidráulica en movimiento rectilíneo) y actuadores rotatorios (motores oleohidráulicos, que convierten energía oleohidráulica en movimiento rotatorio). Ambos tipos son actuadores porque transforman energía hidráulica en mecánica.",
+      "Solo existen actuadores lineales en maquinaria pesada; los giros de superestructura siempre son eléctricos.",
+      "Actuadores pasivos (cilindros que solo reciben aceite) y actuadores activos (motores que también pueden funcionar como bombas)."
+    ],
+    correct:1,
+    justification:"Según la Unidad 1 (GMON32), el objetivo principal de los sistemas oleohidráulicos es impulsar implementos (hojas, baldes, cucharones) usando dos categorías de actuadores: (1) Actuadores lineales — los cilindros hidráulicos, que convierten la energía oleohidráulica en movimiento lineal rectilíneo (extensión y retracción del vástago); y (2) Actuadores rotatorios — los motores oleohidráulicos, que convierten la energía oleohidráulica en movimiento rotatorio de un eje. Esta clasificación es coherente con la definición del Glosario INACAP, donde el actuador es el 'elemento capaz de transformar energía de un tipo a otro (hidráulica en mecánica) para lograr un efecto sobre un proceso'."
+  },
+  // ─── BLOQUE 12: BOMBA DE PALETAS ───
+  {
+    category:"Bombas · Paletas",
+    tagClass:"tag-bomb",
+    type:"Tecnicismo",
+    question:"¿Cuál es el principio de funcionamiento correcto de una bomba de paletas hidráulica de caudal variable y qué mecanismo permite variar su desplazamiento volumétrico?",
+    options:[
+      "El rotor tiene paletas fijas soldadas que crean caudal constante; para variar el caudal se cambia la presión de entrada mediante una válvula reductora.",
+      "El rotor gira con paletas deslizantes que se proyectan por fuerza centrífuga contra la carcasa, formando cámaras selladas. En la versión de caudal variable, la carcasa es móvil (excéntrica ajustable): descentrar el eje del rotor respecto a la carcasa modifica el volumen de las cámaras y, por tanto, el caudal entregado.",
+      "Las paletas son accionadas electromagnéticamente por la señal del PLC, que controla la apertura de cada paleta de forma independiente.",
+      "El principio es idéntico al de la bomba de engranajes: los dientes de las paletas engrana con un piñón central que arrastra el aceite hacia la salida."
+    ],
+    correct:1,
+    justification:"Según la Unidad 1 (GMON32), la bomba de paletas se compone de un rotor, paletas deslizantes y una carcasa. Al girar el rotor, las paletas se desplazan radialmente por fuerza centrífuga y hacen contacto con la carcasa, formando cámaras selladas. Dado que el eje del rotor está descentrado respecto a la carcasa, las cámaras aumentan su volumen en la zona de succión y lo reducen en la zona de descarga. En la versión de caudal variable, la carcasa es móvil (ajustable): al modificar la excentricidad entre el eje del rotor y el centro de la carcasa, se varía el volumen desplazado por cada cámara y, por tanto, el caudal total entregado por la bomba para una misma velocidad de rotación."
+  },
+  // ─── BLOQUE 13: RIESGO INYECCIÓN DE ACEITE ───
+  {
+    category:"Seguridad · Riesgos Hidráulicos",
+    tagClass:"tag-mant",
+    type:"Caso Práctico",
+    question:"Un técnico detecta una posible fuga en una manguera de alta presión de un cilindro hidráulico de una excavadora en operación. Para verificarla, pasa su mano cerca de la manguera y siente un chorro fino que casi no se ve. Según la normativa de seguridad del material, ¿cuál es el riesgo real y la acción correcta?",
+    options:[
+      "El riesgo es mínimo: los chorros finos de aceite hidráulico solo manchan la piel; basta con lavarse con agua y continuar la inspección.",
+      "Una fuga del tamaño del orificio de un alfiler puede inyectar fluido bajo la piel a alta presión, provocando lesiones graves y posibilidad de muerte. La acción correcta es NO detectar fugas con la mano, usar un cartón o madera para localizarlas, detener el equipo, aliviar la presión y buscar atención médica de inmediato si hay inyección de fluido.",
+      "El aceite hidráulico solo es peligroso si supera los 200°C; a temperatura ambiente es inofensivo aunque penetre la piel.",
+      "Solo se debe apagar el motor y esperar 5 minutos; la presión atrapada desaparece sola antes de poder intervenir la manguera."
+    ],
+    correct:1,
+    justification:"La Unidad 3 (GMON32) advierte explícitamente: 'Una fuga del tamaño del agujero de un alfiler puede ocasionar graves lesiones. Si el fluido se llega a inyectar sobre la piel a alta presión se debe buscar tratamiento médico de inmediato. Siempre busque el tratamiento de un médico especializado en este tipo de lesiones.' El aceite a muy alta presión (sistemas hidráulicos de maquinaria pesada operan habitualmente entre 200 y 450 bar) puede penetrar la piel sin dejar más que una marca roja inicial, pero causa necrosis tisular severa y gangrena si no se trata quirúrgicamente de forma urgente. La recomendación técnica es usar siempre un cartón o tabla para detectar fugas, nunca la mano."
+  },
+  // ─── BLOQUE 14: ACEITES COMERCIALES API ───
+  {
+    category:"Mantenimiento · Especificaciones de Aceite",
+    tagClass:"tag-mant",
+    type:"Tecnicismo",
+    question:"Para el sistema hidráulico de un tractor CAT D6T no se dispone de aceite HYDO Caterpillar original. Se evalúan aceites comerciales alternativos certificados por el API (American Petroleum Institute). ¿Cuál es el requisito técnico mínimo que deben cumplir estos aceites y qué categorías API son aceptables?",
+    options:[
+      "Cualquier aceite motor diésel sirve, sin importar su clasificación API ni su contenido de aditivos.",
+      "Deben ser aceites para motores Diesel de servicio pesado con un contenido mínimo de zinc de 900 ppm, y pertenecer a las categorías API: CF-4, CG-4 o CH-4 (se excluyen los aceites hidráulicos industriales, que son más propensos a causar corrosión y desgaste excesivo en los sistemas CAT).",
+      "Solo aceites sintéticos con base PAO (Polialfaolefina) y clasificación API SP son aceptables en sistemas hidráulicos Caterpillar.",
+      "Se puede usar cualquier aceite hidráulico industrial ya que tienen mayor viscosidad y mayor protección que los aceites de motor."
+    ],
+    correct:1,
+    justification:"Según la Unidad 3 (GMON32), para los sistemas hidráulicos del CAT D6T se pueden utilizar aceites comerciales para motores Diesel de servicio pesado con mínimo contenido de zinc de 900 ppm. Las clasificaciones API aceptables son: CF-4, CG-4 y CH-4. Además, el material advierte explícitamente que 'para los sistemas hidráulicos de las máquinas Caterpillar no se recomienda el uso de aceites hidráulicos industriales, ya que estos son más propensos a permitir la corrosión y el desgaste excesivo.' Esta distinción es una pregunta trampa frecuente: aunque parece lógico usar un aceite específicamente llamado 'hidráulico industrial', el manual indica que los aceites de motor Diesel de las categorías correctas son preferibles."
+  },
+  // ─── BLOQUE 15: ETIQUETAS DE SEGURIDAD ───
+  {
+    category:"Seguridad · Etiquetas y EPP",
+    tagClass:"tag-mant",
+    type:"Tecnicismo",
+    question:"Durante un proceso de mantenimiento del sistema hidráulico de una pala PC5500, un técnico limpia una etiqueta de advertencia de 'Fluido hidráulico a alta presión' con gasolina para que quede más limpia. ¿Es correcta esta práctica según la normativa de la asignatura?",
+    options:[
+      "Sí, la gasolina es el disolvente recomendado por el fabricante para la limpieza de etiquetas de advertencia.",
+      "No: está expresamente prohibido usar disolventes, gasolinas ni productos químicos para limpiar etiquetas de advertencia, ya que atacan el pegamento (desprendiendo la etiqueta) y pueden borrar el texto. Solo se deben usar paños secos o húmedos. Si la etiqueta se daña o se vuelve ilegible, debe reemplazarse de inmediato por una nueva.",
+      "Es indiferente: las etiquetas de advertencia son decorativas y no tienen valor legal ni técnico en el proceso de mantención.",
+      "Solo está prohibido usar gasolina con plomo; la gasolina sin plomo o el benceno son aceptables para limpiar etiquetas."
+    ],
+    correct:1,
+    justification:"La Unidad 3 (GMON32) es explícita en este punto: las etiquetas de advertencia deben mantenerse legibles; si se ensucian, se limpian solo con paños secos o paños húmedos, 'pero nunca utilizar disolventes, gasolinas ni ningún otro producto químico que pueda dañar las etiquetas de advertencia, ya sea en el aspecto visual borrándolas o atacando el pegamento.' Además, si cualquier etiqueta se daña o faltase, debe reemplazarse inmediatamente. Si durante un mantenimiento se reemplaza un componente que lleva etiqueta de advertencia, la nueva etiqueta debe instalarse sobre el componente de reemplazo. Las etiquetas son un elemento crítico del sistema de seguridad activa del equipo."
+  },
+  // ─── BLOQUE 16: PRESIÓN ATRAPADA ───
+  {
+    category:"Seguridad · Presión Atrapada",
+    tagClass:"tag-mant",
+    type:"Caso Práctico",
+    question:"Un mantenedor se dispone a cambiar una manguera hidráulica del brazo de una excavadora. El motor lleva 15 minutos apagado. Antes de aflojar la conexión, ¿qué riesgo específico debe verificar y controlar obligatoriamente?",
+    options:[
+      "Ninguno: con el motor apagado 15 minutos la presión hidráulica desaparece completamente por sí sola en todos los circuitos.",
+      "La presión atrapada: puede quedar presión residual en el circuito hidráulico mucho tiempo después de apagar el motor. Si no se alivia correctamente antes de desconectar la manguera, el fluido o tapones de tubería pueden salir disparados causando lesiones graves o muerte. Se debe aliviar la presión siguiendo el procedimiento del manual de servicio antes de intervenir.",
+      "Solo debe verificar que el aceite esté frío; si la temperatura del aceite es inferior a 40°C la presión es segura para abrir conexiones sin precaución adicional.",
+      "El riesgo principal es la contaminación del aceite por polvo ambiental; solo debe tapar la manguera nueva antes de instalarla."
+    ],
+    correct:1,
+    justification:"La Unidad 3 (GMON32) advierte: 'Puede quedar atrapada alguna presión en el circuito hidráulico mucho después de que se haya parado el motor. Esta presión, si no se alivia correctamente, puede causar que el fluido hidráulico o bien tapones de tuberías salgan disparados al momento de intervenir el sistema.' También señala: 'El aceite a alta presión que se descarga puede causar que una manguera se mueva como un látigo, ocasionando lesiones graves y hasta la muerte.' Por eso el procedimiento obliga a aliviar la presión del sistema (según indica el manual de servicio de cada equipo) antes de aflojar cualquier conexión, independientemente del tiempo transcurrido desde el apagado del motor."
+  },
+  // ─── BLOQUE 17: SIMBOLOGÍA ISO ───
+  {
+    category:"Interpretación de Planos · Simbología",
+    tagClass:"tag-valid",
+    type:"Tecnicismo",
+    question:"Al analizar un plano hidráulico del esquema Volvo BL60/BL70, el técnico debe identificar los símbolos correctamente. ¿Qué norma internacional define la simbología estándar para la representación gráfica de componentes en planos y esquemas de circuitos oleohidráulicos y neumáticos?",
+    options:[
+      "La norma ASME B31.3, que regula el diseño de tuberías de proceso industrial en América del Norte.",
+      "La norma ISO 1219 / DIN 24300, que establece la simbología estándar para todos los componentes de circuitos oleohidráulicos y neumáticos (bombas, válvulas, actuadores, acumuladores, filtros, etc.) utilizada internacionalmente en planos técnicos de maquinaria pesada.",
+      "La norma SAE J1939, que define el protocolo de comunicación CAN bus para maquinaria pesada y sus esquemas eléctricos.",
+      "La norma API 610, que regula los planos de bombas centrífugas de proceso en la industria petrolera."
+    ],
+    correct:1,
+    justification:"Según la Unidad 1 (GMON32), la interpretación de planos oleohidráulicos y neumáticos se rige por la norma ISO 1219 / DIN 24300, que establece la simbología estándar para todos los componentes de estos sistemas: bombas, motores, cilindros, válvulas de todos los tipos, acumuladores, filtros, enfriadores, depósitos, líneas de conducción, instrumentos y conexiones. Dominar esta simbología es esencial para leer correctamente un esquema como el Hydraulic Schematic Volvo BL60/BL61/BL70/BL71, identificar cada componente y su función dentro del circuito, y poder diagnosticar fallas o planificar mantenciones."
+  },
+  // ─── BLOQUE 18: CIRCUITO MANDO vs POTENCIA ───
+  {
+    category:"Automatización · Circuitos de Control",
+    tagClass:"tag-auto",
+    type:"Tecnicismo",
+    question:"En el sistema electrohidráulico de un camión articulado, el PLC procesa las señales de los sensores y emite órdenes; las electroválvulas, cilindros y motores hidráulicos ejecutan el trabajo físico. Según el Glosario INACAP, ¿cómo se denominan técnicamente estos dos niveles del sistema?",
+    options:[
+      "Sistema primario (sensores) y sistema secundario (actuadores); ambos forman el circuito de potencia.",
+      "Circuito de mando — donde se representa la lógica de control y se recibe información de los elementos de entrada o captadores de señal — y Circuito de potencia — donde se ejecutan las órdenes dadas por el circuito de mando; sus componentes (motores, solenoides, cilindros) son los que realizan la acción física.",
+      "Circuito neumático (mando) y circuito hidráulico (potencia); en maquinaria pesada siempre el mando es neumático.",
+      "No existe distinción técnica entre ambos niveles; un circuito hidráulico es un sistema unificado sin jerarquías de control."
+    ],
+    correct:1,
+    justification:"El Glosario INACAP define con precisión ambos circuitos: el Circuito de Mando es aquel donde se representa la lógica de control cableada (o programada en el PLC) en el proceso de automatización; es el encargado de recibir la información de los elementos de entrada o captadores de señal (sensores, presostatos, termostatos, encoders). El Circuito de Potencia es aquel que ejecuta las órdenes dadas por el circuito de mando; sus componentes son los motores eléctricos y solenoides (electroválvulas), que son los que finalmente ejecutan la acción sobre el sistema hidráulico. Esta distinción jerárquica es fundamental para el diagnóstico de fallas: un problema en el circuito de mando afecta la lógica de control; uno en el circuito de potencia afecta la ejecución física."
+  },
+  // ─── BLOQUE 19: SENSOR MAGNÉTICO Y FOTOELÉTRICO ───
+  {
+    category:"Automatización · Sensores",
+    tagClass:"tag-auto",
+    type:"Tecnicismo",
+    question:"En el cilindro hidráulico de dirección de una retroexcavadora Volvo BL se instala un sensor magnético en la carcasa externa del cilindro para detectar la posición del émbolo sin perforar el cilindro. ¿Cómo funciona este sensor y qué lo activa?",
+    options:[
+      "Emite un haz de luz infrarroja que rebota en el émbolo metálico y regresa al receptor integrado en el mismo sensor.",
+      "Consiste en un contacto que se activa por la acción de un anillo magnético (imán) incorporado en el émbolo del cilindro: cuando el émbolo pasa cerca del sensor, el imán cierra el contacto; cuando se aleja, el contacto vuelve a abrirse.",
+      "Mide la resistencia eléctrica del aceite hidráulico entre el émbolo y la carcasa para inferir la posición del vástago.",
+      "Detecta las variaciones de campo magnético terrestre generadas por el movimiento del émbolo de acero dentro del cilindro."
+    ],
+    correct:1,
+    justification:"Según el Glosario INACAP, el sensor magnético consiste en un contacto que se activa por la acción de un anillo magnético (imán). Cuando el imán (montado en el émbolo del cilindro) se acerca al sensor montado externamente en la carcasa, se cierra el contacto y se genera la señal de salida; cuando el imán se retira (el émbolo se aleja), el contacto vuelve a abrirse. Esta solución permite detectar posiciones específicas del émbolo sin necesidad de perforar el cilindro para instalar un sensor en su interior, lo que mantiene la integridad del sello hidráulico. Es ampliamente usada en cilindros de dirección, frenos y implementos de maquinaria pesada."
+  },
+  // ─── BLOQUE 20: RELÉ ELECTROMECÁNICO ───
+  {
+    category:"Automatización · Relé",
+    tagClass:"tag-auto",
+    type:"Tecnicismo",
+    question:"En un circuito de control antiguo (sin PLC) de una grúa hidráulica, un relé electromecánico amplifica la señal de un sensor de nivel para activar una bomba de motor eléctrico de alta potencia. ¿Cuáles son los componentes internos del relé y cómo cumple esta función de amplificación?",
+    options:[
+      "El relé solo tiene un transistor de potencia que amplifica la señal electrónicamente sin partes móviles.",
+      "El relé es un dispositivo electromecánico compuesto por una bobina y un electroimán: la pequeña corriente del sensor energiza la bobina, generando un campo magnético que atrae el electroimán y mueve mecánicamente los contactos, permitiendo abrir o cerrar el circuito de mayor potencia que acciona el motor de la bomba.",
+      "El relé es idéntico a un fusible: protege el circuito abriéndose cuando la corriente supera un límite predefinido.",
+      "Un relé es un tipo de PLC simplificado con memoria programable para secuencias de control complejas."
+    ],
+    correct:1,
+    justification:"Según el Glosario INACAP, el relé es un dispositivo electromecánico controlado por un circuito eléctrico. Cumple la función de interruptor y se compone de una bobina y un electroimán. Cuando la bobina se energiza con la señal de control (pequeña corriente), genera un campo magnético que atrae el electroimán y desplaza mecánicamente los contactos del relé, permitiendo abrir o cerrar un circuito de mayor potencia (el del motor de la bomba, por ejemplo). Así el relé 'amplifica' la señal: una pequeña señal de control puede activar o desactivar cargas de mucha mayor potencia. En sistemas modernos de maquinaria pesada, esta función la cumplen los PLCs con sus módulos de salida digital, pero los relés siguen usándose como elementos de interfaz."
+  },
+  // ─── BLOQUE 21: INSUMOS vs REPUESTOS vs HERRAMIENTAS ───
+  {
+    category:"Mantenimiento · Recursos",
+    tagClass:"tag-mant",
+    type:"Tecnicismo",
+    question:"Para realizar el cambio de aceite hidráulico y filtro de un tractor CAT D6T, el jefe de taller debe preparar los recursos necesarios. ¿Cómo se clasifican técnicamente los 'tapones plásticos para evitar contaminación', el 'elemento filtrante' y la 'llave para filtro' dentro de los recursos de mantenimiento?",
+    options:[
+      "Todos son repuestos, ya que todos se consumen o reemplazan durante el mantenimiento.",
+      "Los tapones plásticos son insumos (materia prima de apoyo al proceso), el elemento filtrante es un repuesto (pieza sustituible por otra igual), y la llave para filtro es una herramienta (instrumento que facilita la tarea mecánica). Cada categoría tiene una naturaleza y gestión de stock diferente.",
+      "Los tres son herramientas, ya que todos se utilizan durante el procedimiento de mantenimiento.",
+      "Los tapones son herramientas reutilizables, el filtro es un insumo desechable, y la llave para filtro es un repuesto de emergencia."
+    ],
+    correct:1,
+    justification:"La Unidad 3 (GMON32) define con precisión tres categorías distintas de recursos de mantenimiento: (1) Insumos: elementos o bienes necesarios que se usan como materia prima en el proceso (ej. tapones plásticos para evitar contaminación, tollas de limpieza, disolventes); (2) Repuestos: partes o piezas de un sistema sustituibles por otras exactamente iguales o de igual función (ej. elemento filtrante, aceite hidráulico); y (3) Herramientas: instrumentos que se utilizan para desarrollar la actividad, facilitando el accionar (ej. llave para filtro, contenedor de aceite, equipo de trasvasije). Esta distinción es fundamental para la gestión de bodega, presupuesto de mantenimiento y control de inventario en una faena minera."
   }
+
+
 ];
 
 let currentIndex=0,score=0,selectedIndex=null,answered=false;
